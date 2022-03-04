@@ -8,32 +8,52 @@
     Title="MainWindow"
     Width="1280"
     Height="720"
+    ResizeMode="NoResize"
     mc:Ignorable="d">
 
     <DockPanel Margin="10">
         <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="50" />
-                <RowDefinition />
-                <RowDefinition />
-            </Grid.RowDefinitions>
-
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="900" />
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
-            
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="35" />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+
+            <Grid Grid.RowSpan="2" Grid.Column="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="315" />
+                    <RowDefinition Height="405" />
+                </Grid.RowDefinitions>
+            </Grid>
+
+            <Image
+                Grid.RowSpan="2"
+                Grid.Column="1"
+                MaxWidth="300"
+                MaxHeight="450"
+                Margin="40,0,40,350"
+                Source="{Binding ImageCoverPath}" />
+
             <TextBox
                 Name="txtFilter"
                 Grid.Row="0"
                 Grid.RowSpan="1"
                 Margin="0,0,0,10"
+                VerticalContentAlignment="Center"
                 DockPanel.Dock="Top"
                 TextChanged="txtFilter_TextChanged" />
             <ListView
                 x:Name="ListViewGame"
                 Grid.Row="1"
-                Grid.RowSpan="2"
+                Grid.RowSpan="1"
                 SelectionChanged="TheList_SelectionChanged">
                 <ListView.View>
                     <GridView>
@@ -42,24 +62,24 @@
                                 <GridViewColumnHeader Click="lvUsersColumnHeader_Click" Tag="Name">Name</GridViewColumnHeader>
                             </GridViewColumn.Header>
                         </GridViewColumn>
+                        <GridViewColumn Width="150" DisplayMemberBinding="{Binding Path=Genre}">
+                            <GridViewColumn.Header>
+                                <GridViewColumnHeader Click="lvUsersColumnHeader_Click" Tag="Genre">Genre</GridViewColumnHeader>
+                            </GridViewColumn.Header>
+                        </GridViewColumn>
                         <GridViewColumn Width="150" DisplayMemberBinding="{Binding Path=Platform}">
                             <GridViewColumn.Header>
                                 <GridViewColumnHeader Click="lvUsersColumnHeader_Click" Tag="Platform">Platform</GridViewColumnHeader>
                             </GridViewColumn.Header>
                         </GridViewColumn>
-                        <GridViewColumn Width="150" DisplayMemberBinding="{Binding Path=Release_Year}">
+                        <GridViewColumn Width="100" DisplayMemberBinding="{Binding Path=Release_Year}">
                             <GridViewColumn.Header>
-                                <GridViewColumnHeader Click="lvUsersColumnHeader_Click" Tag="Release_Year">Release_Year</GridViewColumnHeader>
+                                <GridViewColumnHeader Click="lvUsersColumnHeader_Click" Tag="Release_Year">Release Year</GridViewColumnHeader>
                             </GridViewColumn.Header>
                         </GridViewColumn>
-                        <GridViewColumn Width="100" DisplayMemberBinding="{Binding Path=Meta_Score}">
+                        <GridViewColumn Width="100" DisplayMemberBinding="{Binding Path=Rating_Score}">
                             <GridViewColumn.Header>
-                                <GridViewColumnHeader Click="lvUsersColumnHeader_Click" Tag="Meta_Score">Meta_Score</GridViewColumnHeader>
-                            </GridViewColumn.Header>
-                        </GridViewColumn>
-                        <GridViewColumn Width="100" DisplayMemberBinding="{Binding Path=User_Review}">
-                            <GridViewColumn.Header>
-                                <GridViewColumnHeader Click="lvUsersColumnHeader_Click" Tag="User_Review">User_Review</GridViewColumnHeader>
+                                <GridViewColumnHeader Click="lvUsersColumnHeader_Click" Tag="Rating_Score">Rating Score</GridViewColumnHeader>
                             </GridViewColumn.Header>
                         </GridViewColumn>
                     </GridView>

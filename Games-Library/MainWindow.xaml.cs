@@ -36,7 +36,7 @@ namespace Games_Library
             {
                 string[] data = line.Split(';');
                 // We return a Game with the data in order.
-                return new Game(data[0].Substring(1), data[1], Convert.ToInt32(data[3]), data[5], data[6].Remove(data[6].Length - 1, 1));
+                return new Game(data[0], data[1], data[2], data[3], Convert.ToInt32(data[4]), data[6], data[7]);
             });
         }
 
