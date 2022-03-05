@@ -9,7 +9,6 @@ namespace Games_Library
     {
         private static Geometry ascGeometry =
             Geometry.Parse("M 0 4 L 3.5 0 L 7 4 Z");
-
         private static Geometry descGeometry =
             Geometry.Parse("M 0 0 L 3.5 4 L 7 0 Z");
 
