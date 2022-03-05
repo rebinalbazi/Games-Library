@@ -40,26 +40,104 @@
                 </Grid.RowDefinitions>
             </Grid>
 
-            <StackPanel
+            <Image
+                x:Name="img"
                 Grid.RowSpan="2"
                 Grid.Column="1"
                 MaxWidth="200"
                 MaxHeight="300"
-                Margin="40,20,40,350">
-                <Image x:Name="img" />
-            </StackPanel>
+                Margin="25,20,25,380" />
 
             <StackPanel
                 Grid.RowSpan="2"
                 Grid.Column="1"
                 Margin="10,300,0,0">
-                <Label x:Name="labelName" />
-                <Label x:Name="labelGenre" />
-                <Label x:Name="labelPlatform" />
-                <Label x:Name="labelRelease_Day" />
-                <Label x:Name="labelRelease_Year" />
-                <Label x:Name="labelRating_Score" />
-                <Label x:Name="labelDescription" />
+
+                <StackPanel Orientation="Horizontal">
+                    <Label
+                        VerticalAlignment="Center"
+                        Content="Name:"
+                        FontWeight="Black" />
+                    <TextBox
+                        x:Name="textBoxName"
+                        Width="280"
+                        VerticalAlignment="Center"
+                        BorderThickness="0"
+                        IsReadOnly="True"
+                        TextDecorations="None"
+                        TextWrapping="Wrap" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Label
+                        VerticalAlignment="Center"
+                        Content="Genre:"
+                        FontWeight="Black" />
+                    <TextBox
+                        x:Name="textBoxGenre"
+                        Width="280"
+                        VerticalAlignment="Center"
+                        BorderThickness="0"
+                        IsReadOnly="True"
+                        TextDecorations="None"
+                        TextWrapping="Wrap" />
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal">
+                    <Label
+                        VerticalAlignment="Center"
+                        Content="Platform:"
+                        FontWeight="Black" />
+                    <TextBox
+                        x:Name="textBoxPlatform"
+                        Width="250"
+                        VerticalAlignment="Center"
+                        BorderThickness="0"
+                        IsReadOnly="True"
+                        TextDecorations="None"
+                        TextWrapping="Wrap" />
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal">
+                    <Label
+                        VerticalAlignment="Center"
+                        Content="Release Date:"
+                        FontWeight="Black" />
+                    <TextBox
+                        x:Name="textRelease_Date"
+                        Width="150"
+                        VerticalAlignment="Center"
+                        BorderThickness="0"
+                        IsReadOnly="True"
+                        TextDecorations="None" />
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal">
+                    <Label
+                        VerticalAlignment="Center"
+                        Content="Rating Score:"
+                        FontWeight="Black" />
+                    <TextBox
+                        x:Name="textBoxRating_Score"
+                        Width="100"
+                        VerticalAlignment="Center"
+                        BorderThickness="0"
+                        IsReadOnly="True"
+                        TextDecorations="None" />
+                </StackPanel>
+
+                <Label
+                    VerticalAlignment="Center"
+                    Content="Description:"
+                    FontWeight="Black" />
+                <TextBox
+                    x:Name="textBlockDescription"
+                    Width="325"
+                    Margin="5,0,5,5"
+                    VerticalAlignment="Center"
+                    BorderThickness="0"
+                    IsReadOnly="True"
+                    TextDecorations="None"
+                    TextWrapping="Wrap" />
             </StackPanel>
 
             <TextBox
@@ -69,7 +147,8 @@
                 Margin="0,0,0,10"
                 VerticalContentAlignment="Center"
                 DockPanel.Dock="Top"
-                TextChanged="searchFilter_KeywordChanged" />
+                TextChanged="searchFilter_TextChanged" />
+
             <ListView
                 x:Name="ListViewGame"
                 Grid.Row="1"
@@ -77,12 +156,12 @@
                 SelectionChanged="Game_SelectionChanged">
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn Width="400" DisplayMemberBinding="{Binding Path=Name}">
+                        <GridViewColumn Width="350" DisplayMemberBinding="{Binding Path=Name}">
                             <GridViewColumn.Header>
                                 <GridViewColumnHeader Click="SortColumnHeader_Click" Tag="Name">Name</GridViewColumnHeader>
                             </GridViewColumn.Header>
                         </GridViewColumn>
-                        <GridViewColumn Width="150" DisplayMemberBinding="{Binding Path=Genre}">
+                        <GridViewColumn Width="200" DisplayMemberBinding="{Binding Path=Genre}">
                             <GridViewColumn.Header>
                                 <GridViewColumnHeader Click="SortColumnHeader_Click" Tag="Genre">Genre</GridViewColumnHeader>
                             </GridViewColumn.Header>
@@ -92,9 +171,9 @@
                                 <GridViewColumnHeader Click="SortColumnHeader_Click" Tag="Platform">Platform</GridViewColumnHeader>
                             </GridViewColumn.Header>
                         </GridViewColumn>
-                        <GridViewColumn Width="100" DisplayMemberBinding="{Binding Path=Release_Year}">
+                        <GridViewColumn Width="100" DisplayMemberBinding="{Binding Path=Release_Date}">
                             <GridViewColumn.Header>
-                                <GridViewColumnHeader Click="SortColumnHeader_Click" Tag="Release_Year">Release Year</GridViewColumnHeader>
+                                <GridViewColumnHeader Click="SortColumnHeader_Click" Tag="Release_Date">Release_Date</GridViewColumnHeader>
                             </GridViewColumn.Header>
                         </GridViewColumn>
                         <GridViewColumn Width="100" DisplayMemberBinding="{Binding Path=Rating_Score}">
@@ -102,6 +181,7 @@
                                 <GridViewColumnHeader Click="SortColumnHeader_Click" Tag="Rating_Score">Rating Score</GridViewColumnHeader>
                             </GridViewColumn.Header>
                         </GridViewColumn>
+
                     </GridView>
                 </ListView.View>
             </ListView>

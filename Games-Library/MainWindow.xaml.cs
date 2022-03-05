@@ -8,6 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Media.Imaging;
+using System.Text;
 
 namespace Games_Library
 {
@@ -41,11 +42,11 @@ namespace Games_Library
                 // Nach jedem Semikolin werden die Daten in der .csv-Datei getrennt
                 string[] data = line.Split(';');
                 // Das Spiel wird dann mit einzelnen Daten in der richtigen Reihenfolge zurückgegeben.
-                return new Game(data[0], data[1], data[2], data[3], Convert.ToInt32(data[4]), data[5], Convert.ToInt32(data[6]), data[7]);
+                return new Game(data[0], data[1], data[2], data[3], data[4], Convert.ToInt32(data[5]), data[6]);
             });
         }
 
-        // Sortier-Methode beim rauf klicken der Eigenschaft
+        // Sortier-Methode beim rauf klicken der jeweiligen Spiele-Eigenschaft
         private void SortColumnHeader_Click(object sender, RoutedEventArgs e)
         {
             GridViewColumnHeader column = (sender as GridViewColumnHeader);
@@ -80,18 +81,24 @@ namespace Games_Library
                 // Hier wird Cover des Spiels als Bitmap eingelesen und geladen
                 var bitmapImage = new BitmapImage();
                 bitmapImage.BeginInit();
-                bitmapImage.UriSource = new Uri(SelectedGame.Cover_Path); ;
+                // Wenn das Spiel kein Cover enthält, dann wird ein Bild mit "No Cover Available" angezeigt
+                if (SelectedGame.Cover_Path.Length != 0 && SelectedGame.Cover_Path != null)
+                {
+                    bitmapImage.UriSource = new Uri(SelectedGame.Cover_Path);
+                } else
+                {
+                    bitmapImage.UriSource = new Uri("https://upload.wikimedia.org/wikipedia/commons/b/b9/No_Cover.jpg");
+                }
                 bitmapImage.EndInit();
                 img.Source = bitmapImage;
 
-                // Eigenschaften werden den labels übergeben
-                labelName.Content = SelectedGame.Name;
-                labelGenre.Content = SelectedGame.Genre;
-                labelPlatform.Content = SelectedGame.Platform;
-                labelRelease_Day.Content = SelectedGame.Release_Day;
-                labelRelease_Year.Content = SelectedGame.Release_Year;
-                labelRating_Score.Content = SelectedGame.Rating_Score;
-                labelDescription.Content = SelectedGame.Description;
+                // Eigenschaften des jeweiligen Spiels werden übergeben
+                textBoxName.Text = SelectedGame.Name;
+                textBoxGenre.Text = SelectedGame.Genre;
+                textBoxPlatform.Text = SelectedGame.Platform;
+                textRelease_Date.Text = SelectedGame.Release_Date;
+                textBoxRating_Score.Text = SelectedGame.Rating_Score.ToString();
+                textBlockDescription.Text =  Encoding.Default.GetString(Encoding.Default.GetBytes(SelectedGame.Description));
             }
         }
 
@@ -107,7 +114,7 @@ namespace Games_Library
         }
 
         // TextChangedEvent für das Suchfeld
-        private void searchFilter_KeywordChanged(object sender, TextChangedEventArgs e)
+        private void searchFilter_TextChanged(object sender, TextChangedEventArgs e)
         {
             // Bei Änderungen im Suchfeld wird die Spieleliste immer wieder neu aktualisiert
             CollectionViewSource.GetDefaultView(ListViewGame.ItemsSource).Refresh();
