@@ -23,13 +23,7 @@ namespace Games_Library
 
             // Spieleliste einlesen und in ListViewGame speichern
             ListViewGame.ItemsSource = ReadCSV(@"C:\Users\Rebin\source\repos\Games-Library\Games-Library/games_list");
-
-            // Die Variable view wird hier als CollectionView deklariert und mit dem Inhalten von ListView gespeichert
-            CollectionView view = (CollectionView)CollectionViewSource.GetDefaultView(ListViewGame.ItemsSource);
-            // Der Filter von view wird für die Suche von Schlüsselwörtern mit der SearchFilter Methode initialisiert
-            view.Filter = SearchFilter;
-        }
-
+    }
         public IEnumerable<Game> ReadCSV(string fileName)
         {
             // Für die Auflistung wird die Variable lines als string array deklariert und kann nur .csv dateien einlesen
@@ -81,14 +75,13 @@ namespace Games_Library
                 // Hier wird Cover des Spiels als Bitmap eingelesen und geladen
                 var bitmapImage = new BitmapImage();
                 bitmapImage.BeginInit();
+
                 // Wenn das Spiel kein Cover enthält, dann wird ein Bild mit "No Cover Available" angezeigt
                 if (SelectedGame.Cover_Path.Length != 0 && SelectedGame.Cover_Path != null)
-                {
                     bitmapImage.UriSource = new Uri(SelectedGame.Cover_Path);
-                } else
-                {
+                 else
                     bitmapImage.UriSource = new Uri("https://upload.wikimedia.org/wikipedia/commons/b/b9/No_Cover.jpg");
-                }
+                
                 bitmapImage.EndInit();
                 img.Source = bitmapImage;
 
@@ -102,22 +95,43 @@ namespace Games_Library
             }
         }
 
-        // Suchfilter-Methode, die als Parameter den Inhalt des ListViewGame erhält
+        // Suchfilter-Methode, mit vielen Überprüfungen damit mehrere Filter gleichzeitig funktionieren
         private bool SearchFilter(object item)
         {
-            // Wenn die Suchleiste leer ist dann soll die gesamte Liste ausgegeben werden
-            if (String.IsNullOrEmpty(searchFilter.Text))
-                return true;
-            else
-                // Wenn die Suchleiste nicht leer ist, soll nach Spielen gesucht werden, welche das Schlüsswort enthält
+            if (genreFilter.SelectedValue == null)
                 return ((item as Game).Name.IndexOf(searchFilter.Text, StringComparison.OrdinalIgnoreCase) >= 0);
+            else
+                if (searchFilter.Text.Length <= 0 && genreFilter.SelectedValue.ToString().Substring(38).Length <= 1)
+                    return true;
+                else
+                if (genreFilter.SelectedValue.ToString().Substring(38).Length <= 1)
+                    return ((item as Game).Name.IndexOf(searchFilter.Text, StringComparison.OrdinalIgnoreCase) >= 0);
+                else
+                    return ((item as Game).Name.IndexOf(searchFilter.Text, StringComparison.OrdinalIgnoreCase) >= 0 &&
+                        (item as Game).Genre.IndexOf(genreFilter.SelectedValue.ToString().Substring(38), StringComparison.OrdinalIgnoreCase) >= 0);  
         }
-
-        // TextChangedEvent für das Suchfeld
         private void searchFilter_TextChanged(object sender, TextChangedEventArgs e)
         {
-            // Bei Änderungen im Suchfeld wird die Spieleliste immer wieder neu aktualisiert
-            CollectionViewSource.GetDefaultView(ListViewGame.ItemsSource).Refresh();
+            CollectionView view = (CollectionView)CollectionViewSource.GetDefaultView(ListViewGame.ItemsSource);
+            view.Filter = SearchFilter;
+        }
+
+        // GenreFilter-Methode, mit vielen Überprüfungen damit mehrere Filter gleichzeitig funktionieren
+        private bool GenreFilter(object item)
+       {
+            if (searchFilter.Text.Length <= 0 && genreFilter.SelectedValue.ToString().Substring(38).Length <= 1)
+                return true;
+            else
+                if (searchFilter.Text.Length <= 0)
+                return ((item as Game).Genre.IndexOf(genreFilter.SelectedValue.ToString().Substring(38), StringComparison.OrdinalIgnoreCase) >= 0);
+            else
+                return ((item as Game).Name.IndexOf(searchFilter.Text, StringComparison.OrdinalIgnoreCase) >= 0 &&
+                    (item as Game).Genre.IndexOf(genreFilter.SelectedValue.ToString().Substring(38), StringComparison.OrdinalIgnoreCase) >= 0);
+        }
+        private void genreFilter_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            CollectionView view = (CollectionView)CollectionViewSource.GetDefaultView(ListViewGame.ItemsSource);
+            view.Filter = GenreFilter;
         }
     }
 }
