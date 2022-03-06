@@ -157,7 +157,37 @@
                     <ComboBoxItem Content="Sim Racing" />
                     <ComboBoxItem Content="Action-Adventure" />
                     <ComboBoxItem Content="Jump and Run" />
+                </ComboBox>
 
+                <Label
+                    BorderBrush="Black"
+                    BorderThickness="1.5,2,0,2"
+                    Content="Platform:"
+                    FontWeight="Black" />
+                <ComboBox
+                    x:Name="platformFilter"
+                    Width="200"
+                    Height="30"
+                    Padding="5,6,0,0"
+                    SelectionChanged="platformFilter_SelectionChanged">
+                    <ComboBoxItem Content=" " />
+                    <ComboBoxItem Content="PC" />
+                    <ComboBoxItem Content="Playstation 1" />
+                    <ComboBoxItem Content="Playstation 2" />
+                    <ComboBoxItem Content="Playstation 3" />
+                    <ComboBoxItem Content="Playstation 4" />
+                    <ComboBoxItem Content="Playstation 5" />
+                    <ComboBoxItem Content="Xbox Classic" />
+                    <ComboBoxItem Content="Xbox 360" />
+                    <ComboBoxItem Content="Xbox One" />
+                    <ComboBoxItem Content="Xbox Series S|X" />
+                    <ComboBoxItem Content="Nintendo Entertainment System" />
+                    <ComboBoxItem Content="Super Nintendo Entertainment System" />
+                    <ComboBoxItem Content="Nintendo 64" />
+                    <ComboBoxItem Content="Nintendo GameCube" />
+                    <ComboBoxItem Content="Wii" />
+                    <ComboBoxItem Content="Wii U" />
+                    <ComboBoxItem Content="Nintendo Switch" />
                 </ComboBox>
             </StackPanel>
 
