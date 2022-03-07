@@ -52,9 +52,11 @@
                 Margin="10,230,0,0">
                 <StackPanel Orientation="Horizontal">
                     <Label
+                        Name="labelName"
                         VerticalAlignment="Center"
                         Content="Name:"
-                        FontWeight="Black" />
+                        FontWeight="Black"
+                        Visibility="Hidden" />
                     <TextBox
                         x:Name="textBoxName"
                         Width="280"
@@ -66,9 +68,11 @@
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
                     <Label
+                        Name="labelGenre"
                         VerticalAlignment="Center"
                         Content="Genre:"
-                        FontWeight="Black" />
+                        FontWeight="Black"
+                        Visibility="Hidden" />
                     <TextBox
                         x:Name="textBoxGenre"
                         Width="280"
@@ -81,9 +85,11 @@
 
                 <StackPanel Orientation="Horizontal">
                     <Label
+                        Name="labelPlatform"
                         VerticalAlignment="Center"
                         Content="Platform:"
-                        FontWeight="Black" />
+                        FontWeight="Black"
+                        Visibility="Hidden" />
                     <TextBox
                         x:Name="textBoxPlatform"
                         Width="250"
@@ -96,9 +102,11 @@
 
                 <StackPanel Orientation="Horizontal">
                     <Label
+                        Name="labelReleaseDate"
                         VerticalAlignment="Center"
                         Content="Release Date:"
-                        FontWeight="Black" />
+                        FontWeight="Black"
+                        Visibility="Hidden" />
                     <TextBox
                         x:Name="textRelease_Date"
                         Width="150"
@@ -110,9 +118,11 @@
 
                 <StackPanel Orientation="Horizontal">
                     <Label
+                        Name="labelRatingScore"
                         VerticalAlignment="Center"
                         Content="Rating Score:"
-                        FontWeight="Black" />
+                        FontWeight="Black"
+                        Visibility="Hidden" />
                     <TextBox
                         x:Name="textBoxRating_Score"
                         Width="100"
@@ -122,9 +132,11 @@
                         TextDecorations="None" />
                 </StackPanel>
                 <Label
+                    Name="labelDescription"
                     VerticalAlignment="Center"
                     Content="Description:"
-                    FontWeight="Black" />
+                    FontWeight="Black"
+                    Visibility="Hidden" />
                 <TextBox
                     x:Name="textBlockDescription"
                     Width="325"
@@ -142,7 +154,7 @@
                 Orientation="Horizontal">
                 <Label
                     BorderBrush="Black"
-                    BorderThickness="1.5,2,0,2"
+                    BorderThickness="1.5,2,0.75,2"
                     Content="Genre:"
                     FontWeight="Black" />
                 <ComboBox
@@ -151,7 +163,7 @@
                     Height="30"
                     Padding="5,6,0,0"
                     SelectionChanged="genreFilter_SelectionChanged">
-                    <ComboBoxItem Content=" " />
+                    <ComboBoxItem Content="" />
                     <ComboBoxItem Content="First-Person-Shooter" />
                     <ComboBoxItem Content="Action RPG" />
                     <ComboBoxItem Content="Sim Racing" />
@@ -160,17 +172,18 @@
                 </ComboBox>
 
                 <Label
+                    Margin="5,0,0,0"
                     BorderBrush="Black"
-                    BorderThickness="1.5,2,0,2"
+                    BorderThickness="1.5,2,0.75,2"
                     Content="Platform:"
                     FontWeight="Black" />
                 <ComboBox
                     x:Name="platformFilter"
-                    Width="200"
+                    Width="275"
                     Height="30"
                     Padding="5,6,0,0"
                     SelectionChanged="platformFilter_SelectionChanged">
-                    <ComboBoxItem Content=" " />
+                    <ComboBoxItem Content="" />
                     <ComboBoxItem Content="PC" />
                     <ComboBoxItem Content="Playstation 1" />
                     <ComboBoxItem Content="Playstation 2" />
@@ -189,8 +202,31 @@
                     <ComboBoxItem Content="Wii U" />
                     <ComboBoxItem Content="Nintendo Switch" />
                 </ComboBox>
-            </StackPanel>
 
+                <Label
+                    Margin="5,0,0,0"
+                    BorderBrush="Black"
+                    BorderThickness="1.5,2,0.75,2"
+                    Content="Release Year:"
+                    FontWeight="Black" />
+                <ComboBox
+                    x:Name="releaseYearFilter"
+                    Width="100"
+                    Height="30"
+                    Padding="5,6,0,0"
+                    SelectionChanged="releaseYearFilter_SelectionChanged">
+                    <ComboBoxItem Content="" />
+                </ComboBox>
+                <Button
+                    x:Name="resetFilterButton"
+                    Margin="5,0,0,0"
+                    Width="100"
+                    Content="Reset Filter"
+                    FontWeight="Black"
+                    Click="resetFilterButton_Click"
+                    />
+                
+            </StackPanel>
             <StackPanel
                 Grid.Row="1"
                 Grid.RowSpan="1"

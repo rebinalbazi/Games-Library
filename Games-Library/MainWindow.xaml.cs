@@ -22,7 +22,15 @@ namespace Games_Library
 
             // Spieleliste einlesen und in ListViewGame speichern
             ListViewGame.ItemsSource = ReadCSV(@"C:\Users\Rebin\source\repos\Games-Library\Games-Library/games_list");
-    }
+
+            // Release-Jahr items wird angelegt für die Combobox releaseYearFilter 
+            for (int i = 2022; i > 1990; i--)
+            {
+                ComboBoxItem item = new ComboBoxItem();
+                item.Content = i;
+                releaseYearFilter.Items.Add(item);
+            }
+        }
         public IEnumerable<Game> ReadCSV(string fileName)
         {
             // Für die Auflistung wird die Variable lines als string array deklariert und kann nur .csv dateien einlesen
@@ -71,7 +79,15 @@ namespace Games_Library
             // Die if-Anweisung kann nur ausgeführt werden wenn ein Spiel ausgewählt ist
             if (SelectedGame != null)
             {
-                // Hier wird Cover des Spiels als Bitmap eingelesen und geladen
+                // Labels anzeigen lassen
+                labelName.Visibility = Visibility.Visible;
+                labelGenre.Visibility = Visibility.Visible;
+                labelPlatform.Visibility = Visibility.Visible;
+                labelReleaseDate.Visibility = Visibility.Visible;
+                labelRatingScore.Visibility = Visibility.Visible;
+                labelDescription.Visibility = Visibility.Visible;
+
+                // Hier wird das Cover des Spiels als Bitmap eingelesen und geladen
                 var bitmapImage = new BitmapImage();
                 bitmapImage.BeginInit();
 
@@ -94,121 +110,73 @@ namespace Games_Library
             }
         }
 
-        // Suchfilter-Methode, mit mehreren Überprüfungen damit mehrere Filter gleichzeitig funktionieren
-        private bool SearchFilter(object item)
+        // Filter-Methode für Suche, Genre, Plattform und Release-Jahr
+        private bool Filter(object item)
         {
-            // Alle vorhandenen Filter werden angewendet
-            if ((genreFilter.SelectedValue != null && platformFilter.SelectedValue != null))
-                return ((item as Game).Name.IndexOf(searchFilter.Text, StringComparison.OrdinalIgnoreCase) >= 0 &&
-                    (item as Game).Genre.IndexOf(genreFilter.SelectedValue.ToString().Substring(38), StringComparison.OrdinalIgnoreCase) >= 0 &&
-                    (item as Game).Platform.IndexOf(platformFilter.SelectedValue.ToString().Substring(38), StringComparison.OrdinalIgnoreCase) >= 0);
+            // Die jeweiligen Filter werden hier in Strings umgewandelt
+            string genreString;
+            if (genreFilter.SelectedValue == null || genreFilter.SelectedValue.ToString().Length <= 36)
+                genreString = "";
             else
-            // Nur Such Filter wird angewendet
-            if ((genreFilter.SelectedValue == null && platformFilter.SelectedValue == null) ||
-                (genreFilter.SelectedValue == null && platformFilter.SelectedValue.ToString().Substring(38).Length <= 1))
-                return ((item as Game).Name.IndexOf(searchFilter.Text, StringComparison.OrdinalIgnoreCase) >= 0);
+                genreString = genreFilter.SelectedValue.ToString().Substring(38);
+
+            string platformString;
+            if (platformFilter.SelectedValue == null || platformFilter.SelectedValue.ToString().Length <= 36)
+                platformString = "";
             else
-            // Verschiedene Überprüfungen um mehrere Filter Komibinationen zu ermöglichen
-            if ((platformFilter.SelectedValue == null) ||
-                (platformFilter.SelectedValue.ToString().Substring(38).Length <= 1))
-                return ((item as Game).Name.IndexOf(searchFilter.Text, StringComparison.OrdinalIgnoreCase) >= 0 &&
-                    (item as Game).Genre.IndexOf(genreFilter.SelectedValue.ToString().Substring(38), StringComparison.OrdinalIgnoreCase) >= 0);
+                platformString = platformFilter.SelectedValue.ToString().Substring(38);
+
+            string releaseYear;
+            if (releaseYearFilter.SelectedValue == null || releaseYearFilter.SelectedValue.ToString().Length <= 36)
+                releaseYear = "";
             else
-            if ((genreFilter.SelectedValue == null) ||
-                (genreFilter.SelectedValue.ToString().Substring(38).Length <= 1))
-                return ((item as Game).Name.IndexOf(searchFilter.Text, StringComparison.OrdinalIgnoreCase) >= 0 &&
-                    (item as Game).Platform.IndexOf(platformFilter.SelectedValue.ToString().Substring(38), StringComparison.OrdinalIgnoreCase) >= 0);
-            else
-            if ((searchFilter.Text.Length <= 0) ||
-                (genreFilter.SelectedValue.ToString().Substring(38).Length <= 1))
-                return ((item as Game).Genre.IndexOf(genreFilter.SelectedValue.ToString().Substring(38), StringComparison.OrdinalIgnoreCase) >= 0 &&
-                    (item as Game).Platform.IndexOf(platformFilter.SelectedValue.ToString().Substring(38), StringComparison.OrdinalIgnoreCase) >= 0);
-            else
-                // Alle Spiele werden ohne Filter ausgegeben
-                return true;
+                releaseYear = releaseYearFilter.SelectedValue.ToString().Substring(38);
+
+            // Hier wird die Spieleliste mit den angewendeteten Filter zurückgegeben
+            return ((item as Game).Name.IndexOf(searchFilter.Text, StringComparison.OrdinalIgnoreCase) >= 0 &&
+                    (item as Game).Genre.IndexOf(genreString, StringComparison.OrdinalIgnoreCase) >= 0 &&
+                    (item as Game).Platform.IndexOf(platformString, StringComparison.OrdinalIgnoreCase) >= 0 &&
+                    (item as Game).Release_Date.IndexOf(releaseYear, StringComparison.OrdinalIgnoreCase) >= 0);
         }
+
+        // Text -und SelectionsHandler für die jeweiligen Filter:
         private void searchFilter_TextChanged(object sender, TextChangedEventArgs e)
         {
             CollectionView view = (CollectionView)CollectionViewSource.GetDefaultView(ListViewGame.ItemsSource);
-            view.Filter = SearchFilter;
-        }
-
-        // GenreFilter-Methode, mit mehreren Überprüfungen damit mehrere Filter gleichzeitig funktionieren
-        private bool GenreFilter(object item)
-       {
-            // Alle vorhandenen Filter werden angewandt
-            if ((searchFilter.Text.Length <= 0 && platformFilter.SelectedValue != null))
-                return ((item as Game).Name.IndexOf(searchFilter.Text, StringComparison.OrdinalIgnoreCase) >= 0 &&
-                    (item as Game).Genre.IndexOf(genreFilter.SelectedValue.ToString().Substring(38), StringComparison.OrdinalIgnoreCase) >= 0 &&
-                    (item as Game).Platform.IndexOf(platformFilter.SelectedValue.ToString().Substring(38), StringComparison.OrdinalIgnoreCase) >= 0);
-            else
-            // Nur Genre Filter wird angewendet
-            if ((searchFilter.Text.Length <= 0 && platformFilter.SelectedValue == null) ||
-                (searchFilter.Text.Length <= 0 && platformFilter.SelectedValue.ToString().Substring(38).Length <= 1))
-                return ((item as Game).Genre.IndexOf(genreFilter.SelectedValue.ToString().Substring(38), StringComparison.OrdinalIgnoreCase) >= 0);
-            else
-            // Verschiedene Überprüfungen um mehrere Filter Komibinationen zu ermöglichen
-            if ((platformFilter.SelectedValue == null) ||
-                (platformFilter.SelectedValue.ToString().Substring(38).Length <= 1))
-                return ((item as Game).Name.IndexOf(searchFilter.Text, StringComparison.OrdinalIgnoreCase) >= 0 &&
-                    (item as Game).Genre.IndexOf(genreFilter.SelectedValue.ToString().Substring(38), StringComparison.OrdinalIgnoreCase) >= 0);
-            else
-            if ((genreFilter.SelectedValue == null) ||
-                (genreFilter.SelectedValue.ToString().Substring(38).Length <= 1))
-                return ((item as Game).Name.IndexOf(searchFilter.Text, StringComparison.OrdinalIgnoreCase) >= 0 &&
-                    (item as Game).Platform.IndexOf(platformFilter.SelectedValue.ToString().Substring(38), StringComparison.OrdinalIgnoreCase) >= 0);
-            else
-            if ((searchFilter.Text.Length <= 0) ||
-                (genreFilter.SelectedValue.ToString().Substring(38).Length <= 1))
-                return ((item as Game).Genre.IndexOf(genreFilter.SelectedValue.ToString().Substring(38), StringComparison.OrdinalIgnoreCase) >= 0 &&
-                    (item as Game).Platform.IndexOf(platformFilter.SelectedValue.ToString().Substring(38), StringComparison.OrdinalIgnoreCase) >= 0);
-            else
-                // Alle Spiele werden ohne Filter ausgegeben
-                return true;
+            view.Filter = Filter;
         }
         private void genreFilter_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             CollectionView view = (CollectionView)CollectionViewSource.GetDefaultView(ListViewGame.ItemsSource);
-            view.Filter = GenreFilter;
-        }
-        
-        // Plattform-Methode, mit mehreren Überprüfungen damit mehrere Filter gleichzeitig funktionieren
-        private bool PlatformFilter(object item)
-        {
-            // Alle vorhandenen Filter werden angewendet
-            if ((genreFilter.SelectedValue != null && searchFilter.Text.Length <= 0))
-                return ((item as Game).Name.IndexOf(searchFilter.Text, StringComparison.OrdinalIgnoreCase) >= 0 &&
-                    (item as Game).Genre.IndexOf(genreFilter.SelectedValue.ToString().Substring(38), StringComparison.OrdinalIgnoreCase) >= 0 &&
-                    (item as Game).Platform.IndexOf(platformFilter.SelectedValue.ToString().Substring(38), StringComparison.OrdinalIgnoreCase) >= 0);
-            else
-            // Nur Plattform Filter wird angewendet
-            if ((genreFilter.SelectedValue == null && searchFilter.Text.Length <= 0) ||
-                (genreFilter.SelectedValue.ToString().Substring(38).Length <= 1 && searchFilter.Text.Length <= 0))
-                return ((item as Game).Platform.IndexOf(platformFilter.SelectedValue.ToString().Substring(38), StringComparison.OrdinalIgnoreCase) >= 0);
-            else
-            // Verschiedene Überprüfungen um mehrere Filter Komibinationen zu ermöglichen
-            if ((platformFilter.SelectedValue == null) ||
-                (platformFilter.SelectedValue.ToString().Substring(38).Length <= 1))
-                return ((item as Game).Name.IndexOf(searchFilter.Text, StringComparison.OrdinalIgnoreCase) >= 0 &&
-                    (item as Game).Genre.IndexOf(genreFilter.SelectedValue.ToString().Substring(38), StringComparison.OrdinalIgnoreCase) >= 0);
-            else
-            if ((genreFilter.SelectedValue == null) ||
-                (genreFilter.SelectedValue.ToString().Substring(38).Length <= 1))
-                return ((item as Game).Name.IndexOf(searchFilter.Text, StringComparison.OrdinalIgnoreCase) >= 0 &&
-                    (item as Game).Platform.IndexOf(platformFilter.SelectedValue.ToString().Substring(38), StringComparison.OrdinalIgnoreCase) >= 0);
-            else
-            if ((searchFilter.Text.Length <= 0) ||
-                (genreFilter.SelectedValue.ToString().Substring(38).Length <= 1))
-                return ((item as Game).Genre.IndexOf(genreFilter.SelectedValue.ToString().Substring(38), StringComparison.OrdinalIgnoreCase) >= 0 &&
-                    (item as Game).Platform.IndexOf(platformFilter.SelectedValue.ToString().Substring(38), StringComparison.OrdinalIgnoreCase) >= 0);
-            else
-                // Alle Spiele werden ohne Filter ausgegeben
-                return true;
+            view.Filter = Filter;
         }
         private void platformFilter_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             CollectionView view = (CollectionView)CollectionViewSource.GetDefaultView(ListViewGame.ItemsSource);
-            view.Filter = PlatformFilter;
+            view.Filter = Filter;
+        }
+        private void releaseYearFilter_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            CollectionView view = (CollectionView)CollectionViewSource.GetDefaultView(ListViewGame.ItemsSource);
+            view.Filter = Filter;
+        }
+
+        // ResetFilter-Methode um alle Filter wieder zuürckzusetzen
+        private bool ResetFilter(object item)
+        {
+            // Alle Filter werden auf ihren Standartwert zurückgesetzt
+            searchFilter.Text = "";
+            genreFilter.SelectedIndex = -1;
+            platformFilter.SelectedIndex = -1;
+            releaseYearFilter.SelectedIndex = -1;
+
+            // Danach wird die gesamte Spieleliste einfach augegeben
+            return true;
+        }
+        private void resetFilterButton_Click(object sender, RoutedEventArgs e)
+        {
+            CollectionView view = (CollectionView)CollectionViewSource.GetDefaultView(ListViewGame.ItemsSource);
+            view.Filter = ResetFilter;
         }
     }
 }
