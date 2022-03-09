@@ -16,15 +16,19 @@ namespace Games_Library
     {
         private GridViewColumnHeader listViewSortCol = null;
         private SortAdorner listViewSortAdorner = null;
+
         public MainWindow()
         {
             InitializeComponent();
 
-            // Spieleliste einlesen und in ListViewGame speichern
-            ListViewGame.ItemsSource = ReadCSV(@"C:\Users\Rebin\source\repos\Games-Library\Games-Library/games_list");
+            // Lädt zum Start des Programmes die 00_All _Games.csv
+            LoadLibrary("00_All _Games");
 
-            // Release-Jahr items wird angelegt für die Combobox releaseYearFilter 
-            for (int i = 2022; i > 1990; i--)
+            // Lädt zum Start alle vorhandenen Listen in die Combobox Items
+            CreateComboBoxListItems();
+
+            // Release-Jahr items werden für die Combobox releaseYearFilter von 1990-2022 angelegt
+            for (int i = 2022; i > 1989; i--)
             {
                 ComboBoxItem item = new ComboBoxItem();
                 item.Content = i;
@@ -161,7 +165,7 @@ namespace Games_Library
             view.Filter = Filter;
         }
 
-        // ResetFilter-Methode um alle Filter wieder zuürckzusetzen
+        // ResetFilter-Methode um alle Filter wieder zuürckzusetzen und ButtonEventHandler
         private bool ResetFilter(object item)
         {
             // Alle Filter werden auf ihren Standartwert zurückgesetzt
@@ -177,6 +181,75 @@ namespace Games_Library
         {
             CollectionView view = (CollectionView)CollectionViewSource.GetDefaultView(ListViewGame.ItemsSource);
             view.Filter = ResetFilter;
+        }
+        
+        // create -und cancel List ButtonEventHandleer
+        private void createListButton_Click(object sender, RoutedEventArgs e)
+        {
+            // InputBox wird angezeigt
+            InputBox.Visibility = Visibility.Visible;
+        }
+        private void createButton_Click(object sender, RoutedEventArgs e)
+        {
+            // InputBox wird wieder geschlossen und die .csv-Datei wird erzeugt
+            InputBox.Visibility = Visibility.Collapsed;
+            CreateCSVFile(InputTextBox.Text);
+        }
+        private void cancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            // InputBox wird wieder geschlossen und das Eingabefeld wird leer gesetzt
+            InputBox.Visibility = Visibility.Collapsed;
+            InputTextBox.Text = String.Empty;
+        }
+
+        // .csv-Erstell-Methode
+        public void CreateCSVFile(string fileName)
+        {
+            try
+            {
+                // .csv-Datei wird mit dem gewünschten Namen erstellt
+                string csvpath = @"C:\Users\Rebin\source\repos\Games-Library\Games-Library\database/" + fileName + ".csv";
+                File.AppendAllText(csvpath, "");
+
+                // InputBox wird wieder geleert
+                InputTextBox.Text = String.Empty;
+
+                MessageBox.Show("Creating was successful.");
+
+                // Neu erstellte Liste wird der ComboBox hinzugefügt
+                librariesSelection.Items.Add(fileName);
+            }
+            catch 
+            {
+                MessageBox.Show("Error! Please try again.");
+            }
+        }
+        
+        // Lädt alle .csv-Listen als ComboBox items
+        public void CreateComboBoxListItems()
+        {
+            string[] filePaths = Directory.GetFiles(@"C:\Users\Rebin\source\repos\Games-Library\Games-Library\database\", "*.csv");
+            foreach (string file in filePaths)
+            {
+                librariesSelection.Items.Add(file.Substring(65));
+            }
+        }
+
+        //Lädt einer der gwählten Listen
+        private bool LoadLibrary(string libraryFileName)
+        {
+            ListViewGame.ItemsSource = ReadCSV(@"C:\Users\Rebin\source\repos\Games-Library\Games-Library\database/" + libraryFileName + ".csv");
+            return true;
+        }
+        // SelectionsHandler für die Auswahl der Listen
+        private void librariesSelection_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (librariesSelection != null)
+            {
+                string libraryFile = librariesSelection.SelectedItem.ToString();
+                string libraryFileName = libraryFile.Remove(libraryFile.Length - 4, 4);
+                LoadLibrary(libraryFileName);
+            }
         }
     }
 }
