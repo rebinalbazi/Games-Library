@@ -45,12 +45,12 @@
                 Grid.Column="1"
                 MaxWidth="200"
                 MaxHeight="300"
-                Margin="25,20,25,380" />
+                Margin="25,10,25,390" />
 
             <StackPanel
-                Grid.Row="3"
+                Grid.Row="4"
                 Grid.Column="1"
-                Margin="10,230,0,0">
+                Margin="10,200,0,0">
                 <StackPanel Orientation="Horizontal">
                     <Label
                         Name="labelName"

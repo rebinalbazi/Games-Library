@@ -14,8 +14,8 @@ namespace Games_Library
 {
     public partial class MainWindow : Window
     {
-        private GridViewColumnHeader listViewSortCol = null;
-        private SortAdorner listViewSortAdorner = null;
+        public GridViewColumnHeader listViewSortCol = null;
+        public SortAdorner listViewSortAdorner = null;
 
         public MainWindow()
         {
@@ -62,9 +62,10 @@ namespace Games_Library
                 AdornerLayer.GetAdornerLayer(listViewSortCol).Remove(listViewSortAdorner);
                 ListViewGame.Items.SortDescriptions.Clear();
             }
-
+            // Aufsteigende Sortierung
             ListSortDirection newDir = ListSortDirection.Ascending;
 
+            // Absteigende Sortierung
             if (listViewSortCol == column && listViewSortAdorner.Direction == newDir)
                 newDir = ListSortDirection.Descending;
 
@@ -173,6 +174,10 @@ namespace Games_Library
             genreFilter.SelectedIndex = -1;
             platformFilter.SelectedIndex = -1;
             releaseYearFilter.SelectedIndex = -1;
+
+            // Sortierung wird zurückgesetzt
+            AdornerLayer.GetAdornerLayer(listViewSortCol).Remove(listViewSortAdorner);
+            ListViewGame.Items.SortDescriptions.Clear();
 
             // Danach wird die gesamte Spieleliste einfach augegeben
             return true;
