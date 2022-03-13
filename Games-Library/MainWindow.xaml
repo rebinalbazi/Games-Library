@@ -44,7 +44,7 @@
                 Grid.Row="1"
                 Grid.RowSpan="3"
                 Grid.Column="1"
-                Margin="25,10,25,376" />
+                Margin="25,0,25,376" />
 
             <StackPanel
                 Grid.Row="3"
@@ -118,18 +118,52 @@
 
                 <StackPanel Orientation="Horizontal">
                     <Label
-                        Name="labelRatingScore"
+                        Name="labelMetaScore"
                         VerticalAlignment="Center"
-                        Content="Rating Score:"
+                        Content="Meta Score:"
                         FontWeight="Black"
                         Visibility="Hidden" />
                     <TextBox
-                        x:Name="textBoxRating_Score"
+                        x:Name="textBoxMeta_Score"
                         Width="27.5"
                         VerticalAlignment="Center"
                         BorderThickness="0"
-                        IsReadOnly="False"
+                        IsReadOnly="True"
                         TextDecorations="None" />
+                    <Label
+                        Name="labelUserScore"
+                        VerticalAlignment="Center"
+                        Content="User Score:"
+                        FontWeight="Black"
+                        Visibility="Hidden" />
+                    <TextBox
+                        x:Name="textBoxUser_Score"
+                        Width="27.5"
+                        VerticalAlignment="Center"
+                        BorderThickness="0"
+                        IsReadOnly="True"
+                        TextDecorations="None" />
+                    <Button
+                        x:Name="saveUserScoreButton"
+                        Width="30"
+                        Height="17.5"
+                        Margin="5,0,0,0"
+                        Padding="0,-0.5,0,0"
+                        VerticalAlignment="Center"
+                        Click="saveUserScoreButton_Click"
+                        Content="Save"
+                        Visibility="Hidden" />
+
+                    <Button
+                        x:Name="cancelUserScoreButton"
+                        Width="40"
+                        Height="17.5"
+                        Margin="5,0,0,0"
+                        Padding="0,-0.5,0,0"
+                        VerticalAlignment="Center"
+                        Click="cancelUserScoreButton_Click"
+                        Content="Cancel"
+                        Visibility="Hidden" />
                 </StackPanel>
                 <Label
                     Name="labelDescription"
@@ -163,8 +197,28 @@
                         Width="100"
                         Height="30"
                         Click="deleteButton_Click"
-                        Content="Delete"
+                        Content="Delete Game"
                         Visibility="Hidden" />
+
+                    <Button
+                        x:Name="addEditUserScoreButton"
+                        Canvas.Left="107.5"
+                        Canvas.Top="25"
+                        Width="120"
+                        Height="30"
+                        Click="addEditUserScoreButton_Click"
+                        Content="Edit/Add User Score"
+                        Visibility="Hidden" />
+
+                    <Button
+                        x:Name="editGameButton"
+                        Canvas.Left="5"
+                        Canvas.Top="25"
+                        Width="100"
+                        Height="30"
+                        Content="Edit Game"
+                        Visibility="Hidden" />
+
                 </Canvas>
             </StackPanel>
 
@@ -303,12 +357,12 @@
                 SelectionChanged="Game_SelectionChanged">
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn Width="350" DisplayMemberBinding="{Binding Path=Name}">
+                        <GridViewColumn Width="300" DisplayMemberBinding="{Binding Path=Name}">
                             <GridViewColumn.Header>
                                 <GridViewColumnHeader Click="SortColumnHeader_Click" Tag="Name">Name</GridViewColumnHeader>
                             </GridViewColumn.Header>
                         </GridViewColumn>
-                        <GridViewColumn Width="200" DisplayMemberBinding="{Binding Path=Genre}">
+                        <GridViewColumn Width="170" DisplayMemberBinding="{Binding Path=Genre}">
                             <GridViewColumn.Header>
                                 <GridViewColumnHeader Click="SortColumnHeader_Click" Tag="Genre">Genre</GridViewColumnHeader>
                             </GridViewColumn.Header>
@@ -323,9 +377,14 @@
                                 <GridViewColumnHeader Click="SortColumnHeader_Click" Tag="Release_Date">Release_Date</GridViewColumnHeader>
                             </GridViewColumn.Header>
                         </GridViewColumn>
-                        <GridViewColumn Width="100" DisplayMemberBinding="{Binding Path=Rating_Score}">
+                        <GridViewColumn Width="90" DisplayMemberBinding="{Binding Path=Meta_Score}">
                             <GridViewColumn.Header>
-                                <GridViewColumnHeader Click="SortColumnHeader_Click" Tag="Rating_Score">Rating Score</GridViewColumnHeader>
+                                <GridViewColumnHeader Click="SortColumnHeader_Click" Tag="Meta_Score">Meta Score</GridViewColumnHeader>
+                            </GridViewColumn.Header>
+                        </GridViewColumn>
+                        <GridViewColumn Width="90" DisplayMemberBinding="{Binding Path=User_Score}">
+                            <GridViewColumn.Header>
+                                <GridViewColumnHeader Click="SortColumnHeader_Click" Tag="User_Score">User Score</GridViewColumnHeader>
                             </GridViewColumn.Header>
                         </GridViewColumn>
                     </GridView>
