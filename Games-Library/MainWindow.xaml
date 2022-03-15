@@ -238,7 +238,7 @@
                     Margin="5,0,0,0"
                     BorderBrush="Black"
                     BorderThickness="1.5,2,0.75,2"
-                    Content="Libraries :"
+                    Content="Libraries:"
                     FontWeight="Black" />
                 <ComboBox
                     x:Name="librariesSelection"

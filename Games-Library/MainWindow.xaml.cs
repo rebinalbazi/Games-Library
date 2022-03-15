@@ -9,6 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Media.Imaging;
+using System.Reflection;
 using Excel = Microsoft.Office.Interop.Excel;
 
 namespace Games_Library
@@ -45,6 +46,16 @@ namespace Games_Library
                 /// Das Spiel wird dann mit einzelnen Daten in der richtigen Reihenfolge zurückgegeben.
                 return new Game(data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7]);
             });
+        }
+
+        /// Holt sich den Pfad mit dem database Ordner, wo sich alle Listen drinnen befinden
+        public string GetPath()
+        {
+            string sCurrentDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            string sFile = Path.Combine(sCurrentDirectory, @"..\..\..\Games-Library\database/");
+            string sFilePath = Path.GetFullPath(sFile);
+
+            return sFilePath;
         }
 
         /// Sortier-Methode beim rauf klicken der jeweiligen Spiele-Eigenschaft
@@ -200,7 +211,7 @@ namespace Games_Library
             view.Filter = ResetFilter;
         }
 
-        /// createList, create -und cancel List ButtonEventHandleer
+        /// createList, save -und cancel ButtonEventHandleer
         private void createLibraryButton_Click(object sender, RoutedEventArgs e)
         {
             /// InputBox wird angezeigt
@@ -222,37 +233,41 @@ namespace Games_Library
         /// Lädt einer der gewählten Listen
         private bool LoadLibrary(string libraryFileName)
         {
-            ListViewGame.ItemsSource = ReadCSV(@"C:\Users\Rebin\source\repos\Games-Library\Games-Library\database/" + libraryFileName + ".csv");
+            string path = GetPath();
+
+            ListViewGame.ItemsSource = ReadCSV(@"" + path + libraryFileName + ".csv");
             return true;
         }
 
         /// Erstellt eine neue .csv-Datei
         private void CreateCSVFile(string fileName)
         {
+            string path = GetPath();
             try
             {
                 /// .csv-Datei wird mit dem gewünschten Namen erstellt
-                string csvpath = @"C:\Users\Rebin\source\repos\Games-Library\Games-Library\database/" + fileName + ".csv";
+                string csvpath = @"" + path + fileName + ".csv";
                 File.AppendAllText(csvpath, "");
 
                 /// InputBox wird wieder geleert
                 InputTextBox.Text = String.Empty;
 
-                MessageBox.Show("Creating was successful.");
+                MessageBox.Show("Creating was successful.", "Success", MessageBoxButton.OK);
 
                 /// Neu erstellte Liste wird der ComboBox hinzugefügt
                 librariesSelection.Items.Add(fileName + ".csv");
             }
             catch
             {
-                MessageBox.Show("Error! Please try again.");
+                MessageBox.Show("Error! Please try again.", "Error", MessageBoxButton.OK);
             }
         }
 
         /// Lädt alle .csv-Listen in die ComboBox als ComboBoxItems
         private void CreateComboBoxListItems()
         {
-            string[] filePaths = Directory.GetFiles(@"C:\Users\Rebin\source\repos\Games-Library\Games-Library\database\", "*.csv");
+            string path = GetPath();
+            string[] filePaths = Directory.GetFiles(@"" + path, "*.csv");
             foreach (string file in filePaths)
             {
                 librariesSelection.Items.Add(file.Substring(65));
@@ -273,65 +288,73 @@ namespace Games_Library
         /// Methode zum Löschen eines Spiels
         private void deleteButton_Click(object sender, RoutedEventArgs e)
         {
-            Game SelectedGame = (Game)ListViewGame.SelectedItem;
-            string libraryFile = librariesSelection.SelectedItem.ToString();
-            string libraryFileName = libraryFile.Remove(libraryFile.Length - 4, 4);
-
-            /// Excel-Instanz wird erstellt:
-            Excel.Application excel = new Excel.Application();
-            /// Excel-Datei öffnen
-            Excel.Workbook sheet = excel.Workbooks.Open(@"C:\Users\Rebin\source\repos\Games-Library\Games-Library\database/" + libraryFile);
-            /// Arbeitsblatt wird ausgewählt
-            Excel.Worksheet x = excel.ActiveSheet as Excel.Worksheet;
-            /// Range wird erstellt
-            Excel.Range userRange = x.UsedRange;
-
-            /// Range iterieren
-            for (int i = 1; i < userRange.Rows.Count + 1; i++)
+            if (MessageBox.Show("Do you really want to delete this game?", "Confirmation", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
-                /// Einzelne Zelle wird eingelesen
-                string cel = ((Excel.Range)x.Cells[i, 1]).Value2.ToString();
+                string path = GetPath();
+                string libraryFile = librariesSelection.SelectedItem.ToString();
+                string libraryFileName = libraryFile.Remove(libraryFile.Length - 4, 4);
+                Game SelectedGame = (Game)ListViewGame.SelectedItem;
 
-                /// Überprüft die Übereinstimmung der Daten des Spiels
-                if (cel.Contains(SelectedGame.Name + ";" + SelectedGame.Genre + ";" + SelectedGame.Platform + ";"))
+                /// Excel-Instanz wird erstellt:
+                Excel.Application excel = new Excel.Application();
+                /// Excel-Datei öffnen
+                Excel.Workbook sheet = excel.Workbooks.Open(@"" + path + libraryFile);
+                /// Arbeitsblatt wird ausgewählt
+                Excel.Worksheet x = excel.ActiveSheet as Excel.Worksheet;
+                /// Range wird erstellt
+                Excel.Range userRange = x.UsedRange;
+
+                /// Range iterieren
+                for (int i = 1; i < userRange.Rows.Count + 1; i++)
                 {
-                    /// Löscht nach Übereinstimmung die Zelle
-                    x.Cells[i, 1].Delete(Excel.XlDeleteShiftDirection.xlShiftUp);
+                    /// Einzelne Zelle wird eingelesen
+                    string cel = ((Excel.Range)x.Cells[i, 1]).Value2.ToString();
 
-                    /// Arbeitsblatt wird gespeichert
-                    sheet.Save();
+                    /// Überprüft die Übereinstimmung der Daten des Spiels
+                    if (cel.Contains(SelectedGame.Name + ";" + SelectedGame.Genre + ";" + SelectedGame.Platform + ";"))
+                    {
+                        /// Löscht nach Übereinstimmung die Zelle
+                        x.Cells[i, 1].Delete(Excel.XlDeleteShiftDirection.xlShiftUp);
 
-                    MessageBox.Show("Game has been deleted successfully");
-                    break;
+                        /// Arbeitsblatt wird gespeichert
+                        sheet.Save();
+
+                        MessageBox.Show("Game has been deleted successfully", "Success", MessageBoxButton.OK);
+                        break;
+                    }
                 }
+                /// Arbeitsblatt wird geschlossen
+                sheet.Close();
+
+                /// Spieleliste wird aktualisiert
+                LoadLibrary(libraryFileName);
+
+                /// Alle Daten in der Benutzeroberfläche werden zurückgesetzt
+                img.Source = null;
+                textBoxName.Text = "";
+                textBoxGenre.Text = "";
+                textBoxPlatform.Text = "";
+                textRelease_Date.Text = "";
+                textBoxMeta_Score.Text = "";
+                textBoxUser_Score.Text = "";
+                textBlockDescription.Text = Encoding.Default.GetString(Encoding.Default.GetBytes(""));
+
+                /// Labels, ScrollViewer und Buttons werden wieder ausgeblendet, da kein Spiel mehr ausgwählt ist
+                labelName.Visibility = Visibility.Hidden;
+                labelGenre.Visibility = Visibility.Hidden;
+                labelPlatform.Visibility = Visibility.Hidden;
+                labelReleaseDate.Visibility = Visibility.Hidden;
+                labelMetaScore.Visibility = Visibility.Hidden;
+                labelUserScore.Visibility = Visibility.Hidden;
+                labelDescription.Visibility = Visibility.Hidden;
+                scrollViewerDescription.Visibility = Visibility.Hidden;
+                deleteButton.Visibility = Visibility.Hidden;
+                addEditUserScoreButton.Visibility = Visibility.Hidden;
             }
-            /// Arbeitsblatt wird geschlossen
-            sheet.Close();
-
-            /// Spieleliste wird aktualisiert
-            LoadLibrary(libraryFileName);
-
-            /// Alle Daten in der Benutzeroberfläche werden zurückgesetzt
-            img.Source = null;
-            textBoxName.Text = "";
-            textBoxGenre.Text = "";
-            textBoxPlatform.Text = "";
-            textRelease_Date.Text = "";
-            textBoxMeta_Score.Text = "";
-            textBoxUser_Score.Text = "";
-            textBlockDescription.Text = Encoding.Default.GetString(Encoding.Default.GetBytes(""));
-
-            /// Labels, ScrollViewer und Buttons werden wieder ausgeblendet, da kein Spiel mehr ausgwählt ist
-            labelName.Visibility = Visibility.Hidden;
-            labelGenre.Visibility = Visibility.Hidden;
-            labelPlatform.Visibility = Visibility.Hidden;
-            labelReleaseDate.Visibility = Visibility.Hidden;
-            labelMetaScore.Visibility = Visibility.Hidden;
-            labelUserScore.Visibility = Visibility.Hidden;
-            labelDescription.Visibility = Visibility.Hidden;
-            scrollViewerDescription.Visibility = Visibility.Hidden;
-            deleteButton.Visibility = Visibility.Hidden;
-            addEditUserScoreButton.Visibility = Visibility.Hidden;
+            else
+            {
+               /// MessageBox wird wieder geschlossen 
+            }
         }
 
         /// Aktivier -und Abbruchbutton fürs ändern des User Scores
@@ -357,82 +380,98 @@ namespace Games_Library
         /// Methode die den User Score abspeichert
         private void saveUserScoreButton_Click(object sender, RoutedEventArgs e)
         {
-            try
+            int number;
+            bool result = Int32.TryParse(textBoxUser_Score.Text, out number);
+            if (result)
             {
-                Game SelectedGame = (Game)ListViewGame.SelectedItem;
+                string path = GetPath();
                 string libraryFile = librariesSelection.SelectedItem.ToString();
                 string libraryFileName = libraryFile.Remove(libraryFile.Length - 4, 4);
+
+                Game SelectedGame = (Game)ListViewGame.SelectedItem;
+
+                if (ListViewGame.SelectedItem != null)
+                {
+                    SelectedGame = (Game)ListViewGame.SelectedItem;
+                }
+                else
+                {
+                    SelectedGame = new Game(" " + textBoxName.Text,
+                        textBoxGenre.Text,
+                        textBoxPlatform.Text,
+                        textRelease_Date.Text,
+                        Encoding.Default.GetString(Encoding.Default.GetBytes(textBlockDescription.Text)),
+                        textBoxMeta_Score.Text,
+                        textBoxUser_Score.Text,
+                        img.Source + " ");
+                }
 
                 /// Excel-Instanz wird erstellt:
                 Excel.Application excel = new Excel.Application();
                 /// Excel-Datei öffnen
-                Excel.Workbook sheet = excel.Workbooks.Open(@"C:\Users\Rebin\source\repos\Games-Library\Games-Library\database/" + libraryFile);
+                Excel.Workbook sheet = excel.Workbooks.Open(@"" + path + libraryFile);
                 /// Arbeitsblatt wird ausgewählt
                 Excel.Worksheet x = excel.ActiveSheet as Excel.Worksheet;
                 /// Range wird erstellt
                 Excel.Range userRange = x.UsedRange;
 
                 /// Überprüfung für nicht mehr als 100 Eingabe
-                int a = Convert.ToInt32(textBoxUser_Score.Text);
-
-                if (a > 100)
+                if (Convert.ToInt32(textBoxUser_Score.Text) < 100)
                 {
-                    MessageBox.Show("Enter less 100 number", "Error", MessageBoxButton.OK);
-                    textBoxUser_Score.Text = "";
+                    /// UserScore wird mit dem neuen Wert zugewiesen
+                    SelectedGame.User_Score = textBoxUser_Score.Text;
+
+                    /// Range iterieren
+                    for (int i = 1; i < userRange.Rows.Count + 1; i++)
+                    {
+                        /// Einzelne Zelle wird eingelesen
+                        string cel = ((Excel.Range)x.Cells[i, 1]).Value2.ToString();
+
+                        /// Überprüft die Übereinstimmung der Daten des Spiels
+                        if (cel.Contains(SelectedGame.Name + ";" + SelectedGame.Genre + ";" + SelectedGame.Platform + ";"))
+                        {
+                            /// Aktualisiert das Spiel mit dem neuen User Score
+                            x.Cells[i, 1] = SelectedGame.Name + ";" +
+                                SelectedGame.Genre + ";" +
+                                SelectedGame.Platform + ";" +
+                                SelectedGame.Release_Date + ";" +
+                                SelectedGame.Description + ";" +
+                                SelectedGame.Meta_Score + ";" +
+                                SelectedGame.User_Score + ";" +
+                                SelectedGame.Cover_Path;
+
+                            /// Arbeitsblatt wird gespeichert
+                            sheet.Save();
+
+                            MessageBox.Show("User score has been successfully updated!", "Success", MessageBoxButton.OK);
+                            break;
+                        }
+                    }
+
+                    /// Arbeitsblatt wird geschlossen
+                    sheet.Close();
+
+                    /// Spieleliste wird aktualisiert
+                    LoadLibrary(libraryFileName);
+
+                    textBoxUser_Score.IsReadOnly = true;
+                    textBoxUser_Score.BorderThickness = new Thickness(0);
+                    saveUserScoreButton.Visibility = Visibility.Hidden;
+                    cancelUserScoreButton.Visibility = Visibility.Hidden;
                 }
                 else
                 {
-                    if (SelectedGame != null)
-                    {
-                        /// UserScore wird mit dem neuen Wert zugewiesen
-                        SelectedGame.User_Score = textBoxUser_Score.Text;
-
-                        /// Range iterieren
-                        for (int i = 1; i < userRange.Rows.Count + 1; i++)
-                        {
-                            /// Einzelne Zelle wird eingelesen
-                            string cel = ((Excel.Range)x.Cells[i, 1]).Value2.ToString();
-
-                            /// Überprüft die Übereinstimmung der Daten des Spiels
-                            if (cel.Contains(SelectedGame.Name + ";" + SelectedGame.Genre + ";" + SelectedGame.Platform + ";"))
-                            {
-                                /// Aktualisiert das Spiel mit dem neuen User Score
-                                x.Cells[i, 1] = SelectedGame.Name + ";" +
-                                    SelectedGame.Genre + ";" +
-                                    SelectedGame.Platform + ";" +
-                                    SelectedGame.Release_Date + ";" +
-                                    SelectedGame.Description + ";" +
-                                    SelectedGame.Meta_Score + ";" +
-                                    SelectedGame.User_Score + ";" +
-                                    SelectedGame.Cover_Path;
-
-                                /// Arbeitsblatt wird gespeichert
-                                sheet.Save();
-
-                                MessageBox.Show("User score has been successfully updated!");
-                                break;
-                            }
-                        }
-                        /// Arbeitsblatt wird geschlossen
-                        sheet.Close();
-
-                        /// Spieleliste wird aktualisiert
-                        LoadLibrary(libraryFileName);
-
-                        textBoxUser_Score.IsReadOnly = true;
-                        textBoxUser_Score.BorderThickness = new Thickness(0);
-                        saveUserScoreButton.Visibility = Visibility.Hidden;
-                        cancelUserScoreButton.Visibility = Visibility.Hidden;
-                    } 
+                    /// Wenn eine Zahl über 100 eingegeben wird, wird eine Fehler ausgeworfen und das Textfeld geleert
+                    MessageBox.Show("Enter less 100 number", "Error", MessageBoxButton.OK);
+                    textBoxUser_Score.Text = "";
                 }
             }
-            catch
+            else
             {
                 /// Wenn keine Zahl eingegeben wird, wird eine Fehler ausgeworfen und das Textfeld geleert
                 MessageBox.Show("Please only enter numbers", "Error", MessageBoxButton.OK);
                 textBoxUser_Score.Text = "";
             }
         }
-
     }
 }
