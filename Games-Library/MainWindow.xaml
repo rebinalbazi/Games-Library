@@ -227,8 +227,24 @@
                 Grid.RowSpan="1"
                 Orientation="Horizontal">
                 <Button
+                    x:Name="importLibraryButton"
+                    Width="100"
+                    BorderBrush="Black"
+                    Content="Import Library"
+                    FontWeight="Black" />
+
+                <Button
+                    x:Name="exportLibraryButton"
+                    Width="100"
+                    Margin="5,0,0,0"
+                    BorderBrush="Black"
+                    Content="Export Library"
+                    FontWeight="Black" />
+
+                <Button
                     x:Name="createLibraryButton"
                     Width="100"
+                    Margin="5,0,0,0"
                     BorderBrush="Black"
                     Click="createLibraryButton_Click"
                     Content="Create Library "
@@ -242,11 +258,20 @@
                     FontWeight="Black" />
                 <ComboBox
                     x:Name="librariesSelection"
-                    Width="200"
+                    Width="217.5"
                     Height="30"
                     Padding="5,6,0,0"
                     SelectedIndex="0"
                     SelectionChanged="librariesSelection_SelectionChanged" />
+
+                <Button
+                    x:Name="addGameButton"
+                    Width="100"
+                    Margin="200,0,0,0"
+                    BorderBrush="Black"
+                    Click="addGameButton_Click"
+                    Content="Add Game"
+                    FontWeight="Black" />
             </StackPanel>
 
             <StackPanel
@@ -392,7 +417,7 @@
             </ListView>
 
             <Grid
-                x:Name="InputBox"
+                x:Name="createLibraryInputBox"
                 Grid.RowSpan="4"
                 Grid.ColumnSpan="2"
                 Visibility="Collapsed">
@@ -417,7 +442,7 @@
                             FontWeight="Bold"
                             Text="Enter Library Name" />
                         <TextBox
-                            x:Name="InputTextBox"
+                            x:Name="createLibraryInputTextBox"
                             MinWidth="150"
                             MinHeight="25"
                             Padding="5"
@@ -435,6 +460,170 @@
                                 Margin="5"
                                 Background="White"
                                 Click="cancelLibraryButton_Click"
+                                Content="Cancel" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <Grid
+                x:Name="addGameInputBox"
+                Grid.RowSpan="4"
+                Grid.ColumnSpan="2"
+                Visibility="Collapsed">
+                <Grid Background="Black" Opacity="0.5" />
+                <Border
+                    MinWidth="520"
+                    MinHeight="390"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Background="White"
+                    BorderBrush="Black"
+                    BorderThickness="1">
+                    <StackPanel>
+                        <TextBlock
+                            Margin="5"
+                            FontWeight="Bold"
+                            Text="Add Game" />
+                        <Separator Margin="5" />
+
+                        <StackPanel Margin="0,0,0,5" Orientation="Horizontal">
+                            <TextBlock
+                                Margin="5,0,60,0"
+                                VerticalAlignment="Center"
+                                FontWeight="Black"
+                                Text="Name:" />
+
+                            <TextBox
+                                x:Name="addGameName"
+                                Width="270"
+                                VerticalAlignment="Center"
+                                BorderThickness="1"
+                                TextDecorations="None"
+                                TextWrapping="Wrap" />
+                        </StackPanel>
+
+                        <StackPanel Margin="0,0,0,5" Orientation="Horizontal">
+                            <TextBlock
+                                Margin="5,0,60,0"
+                                VerticalAlignment="Center"
+                                FontWeight="Black"
+                                Text="Genre:" />
+
+                            <TextBox
+                                x:Name="addGameGenre"
+                                Width="270"
+                                VerticalAlignment="Center"
+                                BorderThickness="1"
+                                TextDecorations="None"
+                                TextWrapping="Wrap" />
+                        </StackPanel>
+
+                        <StackPanel Margin="0,0,0,5" Orientation="Horizontal">
+                            <TextBlock
+                                Margin="5,0,42.5,0"
+                                VerticalAlignment="Center"
+                                FontWeight="Black"
+                                Text="Platform:" />
+
+                            <TextBox
+                                x:Name="addGamePlatform"
+                                Width="270"
+                                VerticalAlignment="Center"
+                                BorderThickness="1"
+                                TextDecorations="None"
+                                TextWrapping="Wrap" />
+                        </StackPanel>
+
+                        <StackPanel Margin="0,0,0,5" Orientation="Horizontal">
+                            <TextBlock
+                                Margin="5,0,23,0"
+                                VerticalAlignment="Center"
+                                FontWeight="Black"
+                                Text="ReleaseDate:" />
+
+                            <TextBox
+                                x:Name="addGameReleaseDate"
+                                Width="70"
+                                VerticalAlignment="Center"
+                                BorderThickness="1"
+                                TextDecorations="None"
+                                TextWrapping="Wrap" />
+
+                            <TextBlock
+                                Margin="5,0,23,0"
+                                VerticalAlignment="Center"
+                                FontStyle="Oblique"
+                                Text="YYYY-MM-DD" />
+                        </StackPanel>
+
+                        <StackPanel Margin="0,0,0,5" Orientation="Horizontal">
+                            <TextBlock
+                                Margin="5,0,33,0"
+                                VerticalAlignment="Center"
+                                FontWeight="Black"
+                                Text="MetaScore:" />
+
+                            <TextBox
+                                x:Name="addGameMetaScore"
+                                Width="27.5"
+                                VerticalAlignment="Center"
+                                BorderThickness="1"
+                                TextDecorations="None"
+                                TextWrapping="Wrap" />
+
+                            <TextBlock
+                                Margin="5,0,33,0"
+                                VerticalAlignment="Center"
+                                FontStyle="Oblique"
+                                Text="0-100" />
+                        </StackPanel>
+
+                        <StackPanel Margin="0,0,0,5" Orientation="Horizontal">
+                            <TextBlock
+                                Margin="5,0,28,0"
+                                FontWeight="Black"
+                                Text="Description:" />
+
+                            <TextBox
+                                x:Name="addGameDescription"
+                                Width="400"
+                                Height="150"
+                                VerticalAlignment="Center"
+                                BorderThickness="1"
+                                TextDecorations="None"
+                                TextWrapping="Wrap" />
+                        </StackPanel>
+
+                        <StackPanel Margin="0,0,0,5" Orientation="Horizontal">
+                            <TextBlock
+                                Margin="5,0,5,0"
+                                VerticalAlignment="Center"
+                                FontWeight="Black"
+                                Text="Cover Path URL:" />
+
+                            <TextBox
+                                x:Name="addGameCoverPath"
+                                Width="400"
+                                Height="50"
+                                VerticalAlignment="Center"
+                                BorderThickness="1"
+                                TextDecorations="None"
+                                TextWrapping="Wrap" />
+                        </StackPanel>
+
+                        <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                            <Button
+                                Width="50"
+                                Margin="5"
+                                Background="White"
+                                Click="saveAddGame_Click"
+                                Content="Save" />
+                            <Button
+                                Width="50"
+                                Margin="5"
+                                Background="White"
+                                Click="cancelAddGameButton_Click"
                                 Content="Cancel" />
                         </StackPanel>
                     </StackPanel>

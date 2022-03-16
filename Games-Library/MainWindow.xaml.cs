@@ -9,7 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Media.Imaging;
-using System.Reflection;
+using System.Globalization;
 using Excel = Microsoft.Office.Interop.Excel;
 
 namespace Games_Library
@@ -215,19 +215,19 @@ namespace Games_Library
         private void createLibraryButton_Click(object sender, RoutedEventArgs e)
         {
             /// InputBox wird angezeigt
-            InputBox.Visibility = Visibility.Visible;
+            createLibraryInputBox.Visibility = Visibility.Visible;
         }
         private void saveLibraryButton_Click(object sender, RoutedEventArgs e)
         {
             /// InputBox wird wieder geschlossen und die .csv-Datei wird erzeugt
-            InputBox.Visibility = Visibility.Collapsed;
-            CreateCSVFile(InputTextBox.Text);
+            createLibraryInputBox.Visibility = Visibility.Collapsed;
+            CreateCSVFile(createLibraryInputTextBox.Text);
         }
         private void cancelLibraryButton_Click(object sender, RoutedEventArgs e)
         {
             /// InputBox wird wieder geschlossen und das Eingabefeld wird leer gesetzt
-            InputBox.Visibility = Visibility.Collapsed;
-            InputTextBox.Text = String.Empty;
+            createLibraryInputBox.Visibility = Visibility.Collapsed;
+            createLibraryInputTextBox.Text = String.Empty;
         }
 
         /// Lädt einer der gewählten Listen
@@ -250,7 +250,7 @@ namespace Games_Library
                 File.AppendAllText(csvpath, "");
 
                 /// InputBox wird wieder geleert
-                InputTextBox.Text = String.Empty;
+                createLibraryInputTextBox.Text = String.Empty;
 
                 MessageBox.Show("Creating was successful.", "Success", MessageBoxButton.OK);
 
@@ -268,7 +268,7 @@ namespace Games_Library
         {
             string path = GetPath();
             string[] filePaths = Directory.GetFiles(@"" + path, "*.csv");
-            
+
             foreach (string file in filePaths)
             {
                 librariesSelection.Items.Add(file.Substring(file.LastIndexOf("database") + 9));
@@ -354,7 +354,7 @@ namespace Games_Library
             }
             else
             {
-               /// MessageBox wird wieder geschlossen 
+                /// MessageBox wird wieder geschlossen 
             }
         }
 
@@ -472,6 +472,124 @@ namespace Games_Library
                 /// Wenn keine Zahl eingegeben wird, wird eine Fehler ausgeworfen und das Textfeld geleert
                 MessageBox.Show("Please only enter numbers", "Error", MessageBoxButton.OK);
                 textBoxUser_Score.Text = "";
+            }
+        }
+
+        /// Aktivier -und Abbruchbutton fürs hinzufügen eines neuen Spiels
+        private void addGameButton_Click(object sender, RoutedEventArgs e)
+        {
+            addGameInputBox.Visibility = Visibility.Visible;
+        }
+        private void cancelAddGameButton_Click(object sender, RoutedEventArgs e)
+        {
+            /// Alle Input Felder werden wieder zurückgesetzt und die InputBox ausgeblendet
+            addGameInputBox.Visibility = Visibility.Hidden;
+            addGameName.Text = "";
+            addGameGenre.Text = "";
+            addGamePlatform.Text = "";
+            addGameReleaseDate.Text = "";
+            addGameDescription.Text = "";
+            addGameMetaScore.Text = "";
+            addGameCoverPath.Text = "";
+        }
+
+        /// Methode für das hinzufügen eines neuen Spiels in die Liste
+        private void saveAddGame_Click(object sender, RoutedEventArgs e)
+        {
+            /// Überprüfung das keine Semikolons in den Input Feldern sind
+            if (!addGameName.Text.Contains(";") &&
+                !addGameGenre.Text.Contains(";") &&
+                !addGamePlatform.Text.Contains(";") &&
+                !addGameReleaseDate.Text.Contains(";") &&
+                !addGameDescription.Text.Contains(";") &&
+                !addGameMetaScore.Text.Contains(";") &&
+                !addGameCoverPath.Text.Contains(";"))
+            {
+                DateTime dt;
+                string[] formats = { "yyyy-MM-dd" };
+                if (DateTime.TryParseExact(addGameReleaseDate.Text, formats,
+                                CultureInfo.InvariantCulture, DateTimeStyles.None, out dt) ||
+                                addGameReleaseDate.Text == "")
+                {
+                    int number;
+                    bool result = Int32.TryParse(addGameMetaScore.Text, out number);
+                    if (result || addGameMetaScore.Text == "")
+                    {
+                        string path = GetPath();
+                        string libraryFile = librariesSelection.SelectedItem.ToString();
+                        string libraryFileName = libraryFile.Remove(libraryFile.Length - 4, 4);
+
+                        /// Überprüfung wenn nichts im MetaScore Textfeld steht oder für nicht mehr als 100 Eingabe
+                        if (addGameMetaScore.Text == "" || Convert.ToInt32(addGameMetaScore.Text) < 100)
+                        {
+                            /// Excel-Instanz wird erstellt:
+                            Excel.Application excel = new Excel.Application();
+                            /// Excel-Datei öffnen
+                            Excel.Workbook sheet = excel.Workbooks.Open(@"" + path + libraryFile);
+                            /// Arbeitsblatt wird ausgewählt
+                            Excel.Worksheet x = excel.ActiveSheet as Excel.Worksheet;
+                            /// Range wird erstellt
+                            Excel.Range userRange = x.UsedRange;
+
+                            int countRecords = userRange.Rows.Count;
+
+                            string newGame = addGameName.Text + ";" +
+                                addGameGenre.Text + ";" +
+                                addGamePlatform.Text + ";" +
+                                addGameReleaseDate.Text + ";" +
+                                addGameDescription.Text + ";" +
+                                addGameMetaScore.Text + ";" + ";" +
+                                addGameCoverPath.Text;
+
+
+                            /// Neues Spiel wird der einer Excel-Zelle hinzugefügt
+                            x.Cells[countRecords, 1] = newGame;
+
+                            /// Arbeitsblatt wird gespeichert
+                            sheet.Save();
+
+                            MessageBox.Show("The game has been added to the library!", "Success", MessageBoxButton.OK);
+
+                            /// Arbeitsblatt wird geschlossen
+                            sheet.Close();
+
+                            /// Spieleliste wird aktualisiert
+                            LoadLibrary(libraryFileName);
+
+                            /// Alle Input Felder werden wieder zurückgesetzt und die InputBox ausgeblendet
+                            addGameInputBox.Visibility = Visibility.Hidden;
+                            addGameName.Text = "";
+                            addGameGenre.Text = "";
+                            addGamePlatform.Text = "";
+                            addGameReleaseDate.Text = "";
+                            addGameDescription.Text = "";
+                            addGameMetaScore.Text = "";
+                            addGameCoverPath.Text = "";
+
+                        }
+                        else
+                        {
+                            /// Wenn eine Zahl über 100 eingegeben wird, wird eine Fehler ausgeworfen und das Textfeld geleert
+                            MessageBox.Show("Enter less 100 number", "Error", MessageBoxButton.OK);
+                            addGameMetaScore.Text = "";
+                        }
+                    }
+                    else
+                    {
+                        /// Wenn keine Zahl eingegeben wird, wird eine Fehler ausgeworfen und das Textfeld geleert
+                        MessageBox.Show("Please only enter numbers", "Error", MessageBoxButton.OK);
+                        addGameMetaScore.Text = "";
+                    }
+                }
+                else
+                {
+                    /// Wenn ein falsches Datumformat eingegeben word ist, wird ein Fehler ausgeworfen und das Textfeld geleert
+                    MessageBox.Show("Please enter the correct date format", "Error", MessageBoxButton.OK);
+                }
+            }
+            else
+            {
+                MessageBox.Show("The input fields must not contain semicolons!", "Error", MessageBoxButton.OK);
             }
         }
     }
