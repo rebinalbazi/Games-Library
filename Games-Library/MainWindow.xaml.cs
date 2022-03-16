@@ -107,11 +107,16 @@ namespace Games_Library
                 var bitmapImage = new BitmapImage();
                 bitmapImage.BeginInit();
 
+                Uri uriResult;
+                bool result = Uri.TryCreate(SelectedGame.Cover_Path, UriKind.Absolute, out uriResult);
+                if (!result)
+                    SelectedGame.Cover_Path = "";
+
                 /// Wenn das Spiel kein Cover enthält, dann wird ein Bild mit "No Cover Available" angezeigt
                 if (SelectedGame.Cover_Path.Length != 0 && SelectedGame.Cover_Path != null)
                     bitmapImage.UriSource = new Uri(SelectedGame.Cover_Path);
                 else
-                    bitmapImage.UriSource = new Uri("https:///upload.wikimedia.org/wikipedia/commons/b/b9/No_Cover.jpg");
+                    bitmapImage.UriSource = new Uri("https://upload.wikimedia.org/wikipedia/commons/b/b9/No_Cover.jpg");
 
                 bitmapImage.EndInit();
                 img.Source = bitmapImage;
@@ -132,10 +137,10 @@ namespace Games_Library
         {
             /// Die jeweiligen Filter werden hier in Strings umgewandelt
             string genreString;
-            if (genreFilter.SelectedValue == null || genreFilter.SelectedValue.ToString().Length <= 36)
+            if (genreFilter.SelectedValue == null || genreFilter.SelectedValue.ToString().Contains("System.Windows.Controls.ComboBoxItem"))
                 genreString = "";
             else
-                genreString = genreFilter.SelectedValue.ToString().Substring(38);
+                genreString = genreFilter.SelectedValue.ToString();
 
             string platformString;
             if (platformFilter.SelectedValue == null || platformFilter.SelectedValue.ToString().Length <= 36)
@@ -198,9 +203,12 @@ namespace Games_Library
             platformFilter.SelectedIndex = -1;
             releaseYearFilter.SelectedIndex = -1;
 
-            /// Sortierung wird zurückgesetzt
-            AdornerLayer.GetAdornerLayer(listViewSortCol).Remove(listViewSortAdorner);
-            ListViewGame.Items.SortDescriptions.Clear();
+            if (listViewSortCol != null)
+            {
+                /// Sortierung wird zurückgesetzt
+                AdornerLayer.GetAdornerLayer(listViewSortCol).Remove(listViewSortAdorner);
+                ListViewGame.Items.SortDescriptions.Clear();
+            }
 
             /// Danach wird die gesamte Spieleliste einfach augegeben
             return true;
@@ -274,6 +282,43 @@ namespace Games_Library
                 librariesSelection.Items.Add(file.Substring(file.LastIndexOf("database") + 9));
             }
         }
+        
+        /// Lädt alle verfügbaren Genres dynamisch aus der derzeit ausgewählten Liste
+        private void CreateComBoxGenreItems()
+        {
+            genreFilter.Items.Clear();
+            genreFilter.Items.Add("");
+
+            string path = GetPath();
+            string libraryFile = librariesSelection.SelectedItem.ToString();
+            string libraryFileName = libraryFile.Remove(libraryFile.Length - 4, 4);
+            Game SelectedGame = (Game)ListViewGame.SelectedItem;
+
+            /// Excel-Instanz wird erstellt:
+            Excel.Application excel = new Excel.Application();
+            /// Excel-Datei öffnen
+            Excel.Workbook sheet = excel.Workbooks.Open(@"" + path + libraryFile);
+            /// Arbeitsblatt wird ausgewählt
+            Excel.Worksheet x = excel.ActiveSheet as Excel.Worksheet;
+            /// Range wird erstellt
+            Excel.Range userRange = x.UsedRange;
+
+            /// Range iterieren
+            for (int i = 1; i < userRange.Rows.Count + 1; i++)
+            {
+                /// Einzelne Zelle wird eingelesen
+                string cel = ((Excel.Range)x.Cells[i, 1]).Value2.ToString();
+
+                /// Genre wird aus dem Spiel rausgesucht
+                string genreCel = (cel.Substring(cel.IndexOf(";") + 1).Split(';')[0].Trim());
+
+                /// Genre wird der ComboBox hinzugefügt
+                if (!genreFilter.Items.Contains(genreCel))
+                    genreFilter.Items.Add(genreCel);
+            }
+            /// Arbeitsblatt wird geschlossen
+            sheet.Close();
+        }
 
         /// SelectionsHandler für die Auswahl der Listen
         private void librariesSelection_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -283,6 +328,10 @@ namespace Games_Library
                 string libraryFile = librariesSelection.SelectedItem.ToString();
                 string libraryFileName = libraryFile.Remove(libraryFile.Length - 4, 4);
                 LoadLibrary(libraryFileName);
+                CreateComBoxGenreItems();
+
+                CollectionView view = (CollectionView)CollectionViewSource.GetDefaultView(ListViewGame.ItemsSource);
+                view.Filter = ResetFilter;
             }
         }
 
@@ -329,6 +378,7 @@ namespace Games_Library
 
                 /// Spieleliste wird aktualisiert
                 LoadLibrary(libraryFileName);
+                CreateComBoxGenreItems();
 
                 /// Alle Daten in der Benutzeroberfläche werden zurückgesetzt
                 img.Source = null;
@@ -454,6 +504,7 @@ namespace Games_Library
 
                     /// Spieleliste wird aktualisiert
                     LoadLibrary(libraryFileName);
+                    CreateComBoxGenreItems();
 
                     textBoxUser_Score.IsReadOnly = true;
                     textBoxUser_Score.BorderThickness = new Thickness(0);
@@ -486,7 +537,7 @@ namespace Games_Library
             addGameInputBox.Visibility = Visibility.Hidden;
             addGameName.Text = "";
             addGameGenre.Text = "";
-            addGamePlatform.Text = "";
+            addGameplatform.SelectedIndex = -1;
             addGameReleaseDate.Text = "";
             addGameDescription.Text = "";
             addGameMetaScore.Text = "";
@@ -499,12 +550,17 @@ namespace Games_Library
             /// Überprüfung das keine Semikolons in den Input Feldern sind
             if (!addGameName.Text.Contains(";") &&
                 !addGameGenre.Text.Contains(";") &&
-                !addGamePlatform.Text.Contains(";") &&
                 !addGameReleaseDate.Text.Contains(";") &&
                 !addGameDescription.Text.Contains(";") &&
                 !addGameMetaScore.Text.Contains(";") &&
                 !addGameCoverPath.Text.Contains(";"))
             {
+                string platformString;
+                if (addGameplatform.SelectedValue == null || addGameplatform.SelectedValue.ToString().Length <= 36)
+                    platformString = "";
+                else
+                    platformString = addGameplatform.SelectedValue.ToString().Substring(38);
+
                 DateTime dt;
                 string[] formats = { "yyyy-MM-dd" };
                 if (DateTime.TryParseExact(addGameReleaseDate.Text, formats,
@@ -535,7 +591,7 @@ namespace Games_Library
 
                             string newGame = addGameName.Text + ";" +
                                 addGameGenre.Text + ";" +
-                                addGamePlatform.Text + ";" +
+                                platformString + ";" +
                                 addGameReleaseDate.Text + ";" +
                                 addGameDescription.Text + ";" +
                                 addGameMetaScore.Text + ";" + ";" +
@@ -543,7 +599,7 @@ namespace Games_Library
 
 
                             /// Neues Spiel wird der einer Excel-Zelle hinzugefügt
-                            x.Cells[countRecords, 1] = newGame;
+                            x.Cells[countRecords + 1, 1] = newGame;
 
                             /// Arbeitsblatt wird gespeichert
                             sheet.Save();
@@ -555,17 +611,18 @@ namespace Games_Library
 
                             /// Spieleliste wird aktualisiert
                             LoadLibrary(libraryFileName);
+                            CreateComBoxGenreItems();
 
                             /// Alle Input Felder werden wieder zurückgesetzt und die InputBox ausgeblendet
                             addGameInputBox.Visibility = Visibility.Hidden;
                             addGameName.Text = "";
                             addGameGenre.Text = "";
-                            addGamePlatform.Text = "";
+                            platformString = "";
+                            addGameplatform.SelectedIndex = -1;
                             addGameReleaseDate.Text = "";
                             addGameDescription.Text = "";
                             addGameMetaScore.Text = "";
                             addGameCoverPath.Text = "";
-
                         }
                         else
                         {

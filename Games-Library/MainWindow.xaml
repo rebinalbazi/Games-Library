@@ -258,7 +258,7 @@
                     FontWeight="Black" />
                 <ComboBox
                     x:Name="librariesSelection"
-                    Width="217.5"
+                    Width="412.5"
                     Height="30"
                     Padding="5,6,0,0"
                     SelectedIndex="0"
@@ -267,7 +267,7 @@
                 <Button
                     x:Name="addGameButton"
                     Width="100"
-                    Margin="200,0,0,0"
+                    Margin="5,0,0,0"
                     BorderBrush="Black"
                     Click="addGameButton_Click"
                     Content="Add Game"
@@ -289,14 +289,7 @@
                     Width="200"
                     Height="30"
                     Padding="5,6,0,0"
-                    SelectionChanged="genreFilter_SelectionChanged">
-                    <ComboBoxItem Content="" />
-                    <ComboBoxItem Content="First-Person-Shooter" />
-                    <ComboBoxItem Content="Action RPG" />
-                    <ComboBoxItem Content="Sim Racing" />
-                    <ComboBoxItem Content="Action-Adventure" />
-                    <ComboBoxItem Content="Jump and Run" />
-                </ComboBox>
+                    SelectionChanged="genreFilter_SelectionChanged" />
 
                 <Label
                     Margin="5,5,0,5"
@@ -489,7 +482,7 @@
 
                         <StackPanel Margin="0,0,0,5" Orientation="Horizontal">
                             <TextBlock
-                                Margin="5,0,60,0"
+                                Margin="5,0,61,0"
                                 VerticalAlignment="Center"
                                 FontWeight="Black"
                                 Text="Name:" />
@@ -526,13 +519,31 @@
                                 FontWeight="Black"
                                 Text="Platform:" />
 
-                            <TextBox
-                                x:Name="addGamePlatform"
+                            <ComboBox
+                                x:Name="addGameplatform"
                                 Width="270"
-                                VerticalAlignment="Center"
-                                BorderThickness="1"
-                                TextDecorations="None"
-                                TextWrapping="Wrap" />
+                                Height="27"
+                                Padding="5,6,0,0">
+                                <ComboBoxItem Content="" />
+                                <ComboBoxItem Content="PC" />
+                                <ComboBoxItem Content="Playstation 1" />
+                                <ComboBoxItem Content="Playstation 2" />
+                                <ComboBoxItem Content="Playstation 3" />
+                                <ComboBoxItem Content="Playstation 4" />
+                                <ComboBoxItem Content="Playstation 5" />
+                                <ComboBoxItem Content="Xbox Classic" />
+                                <ComboBoxItem Content="Xbox 360" />
+                                <ComboBoxItem Content="Xbox One" />
+                                <ComboBoxItem Content="Xbox Series S|X" />
+                                <ComboBoxItem Content="Nintendo Entertainment System" />
+                                <ComboBoxItem Content="Super Nintendo Entertainment System" />
+                                <ComboBoxItem Content="Nintendo 64" />
+                                <ComboBoxItem Content="Nintendo GameCube" />
+                                <ComboBoxItem Content="Wii" />
+                                <ComboBoxItem Content="Wii U" />
+                                <ComboBoxItem Content="Nintendo Switch" />
+                            </ComboBox>
+
                         </StackPanel>
 
                         <StackPanel Margin="0,0,0,5" Orientation="Horizontal">
