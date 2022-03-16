@@ -216,6 +216,7 @@
                         Canvas.Top="25"
                         Width="100"
                         Height="30"
+                        Click="editGameButton_Click"
                         Content="Edit Game"
                         Visibility="Hidden" />
 
@@ -635,6 +636,188 @@
                                 Margin="5"
                                 Background="White"
                                 Click="cancelAddGameButton_Click"
+                                Content="Cancel" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <Grid
+                x:Name="editGameInputBox"
+                Grid.RowSpan="4"
+                Grid.ColumnSpan="2"
+                Visibility="Collapsed">
+                <Grid Background="Black" Opacity="0.5" />
+                <Border
+                    MinWidth="520"
+                    MinHeight="390"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Background="White"
+                    BorderBrush="Black"
+                    BorderThickness="1">
+                    <StackPanel>
+                        <TextBlock
+                            Margin="5"
+                            FontWeight="Bold"
+                            Text="Add Game" />
+                        <Separator Margin="5" />
+
+                        <StackPanel Margin="0,0,0,5" Orientation="Horizontal">
+                            <TextBlock
+                                Margin="5,0,61,0"
+                                VerticalAlignment="Center"
+                                FontWeight="Black"
+                                Text="Name:" />
+
+                            <TextBox
+                                x:Name="editGameName"
+                                Width="270"
+                                VerticalAlignment="Center"
+                                BorderThickness="1"
+                                TextDecorations="None"
+                                TextWrapping="Wrap" />
+                        </StackPanel>
+
+                        <StackPanel Margin="0,0,0,5" Orientation="Horizontal">
+                            <TextBlock
+                                Margin="5,0,60,0"
+                                VerticalAlignment="Center"
+                                FontWeight="Black"
+                                Text="Genre:" />
+
+                            <TextBox
+                                x:Name="editGameGenre"
+                                Width="270"
+                                VerticalAlignment="Center"
+                                BorderThickness="1"
+                                TextDecorations="None"
+                                TextWrapping="Wrap" />
+                        </StackPanel>
+
+                        <StackPanel Margin="0,0,0,5" Orientation="Horizontal">
+                            <TextBlock
+                                Margin="5,0,42.5,0"
+                                VerticalAlignment="Center"
+                                FontWeight="Black"
+                                Text="Platform:" />
+
+                            <ComboBox
+                                x:Name="editGameplatform"
+                                Width="270"
+                                Height="27"
+                                Padding="5,6,0,0">
+                                <ComboBoxItem Content="" />
+                                <ComboBoxItem Content="PC" />
+                                <ComboBoxItem Content="Playstation 1" />
+                                <ComboBoxItem Content="Playstation 2" />
+                                <ComboBoxItem Content="Playstation 3" />
+                                <ComboBoxItem Content="Playstation 4" />
+                                <ComboBoxItem Content="Playstation 5" />
+                                <ComboBoxItem Content="Xbox Classic" />
+                                <ComboBoxItem Content="Xbox 360" />
+                                <ComboBoxItem Content="Xbox One" />
+                                <ComboBoxItem Content="Xbox Series S|X" />
+                                <ComboBoxItem Content="Nintendo Entertainment System" />
+                                <ComboBoxItem Content="Super Nintendo Entertainment System" />
+                                <ComboBoxItem Content="Nintendo 64" />
+                                <ComboBoxItem Content="Nintendo GameCube" />
+                                <ComboBoxItem Content="Wii" />
+                                <ComboBoxItem Content="Wii U" />
+                                <ComboBoxItem Content="Nintendo Switch" />
+                            </ComboBox>
+
+                        </StackPanel>
+
+                        <StackPanel Margin="0,0,0,5" Orientation="Horizontal">
+                            <TextBlock
+                                Margin="5,0,23,0"
+                                VerticalAlignment="Center"
+                                FontWeight="Black"
+                                Text="ReleaseDate:" />
+
+                            <TextBox
+                                x:Name="editGameReleaseDate"
+                                Width="70"
+                                VerticalAlignment="Center"
+                                BorderThickness="1"
+                                TextDecorations="None"
+                                TextWrapping="Wrap" />
+
+                            <TextBlock
+                                Margin="5,0,23,0"
+                                VerticalAlignment="Center"
+                                FontStyle="Oblique"
+                                Text="YYYY-MM-DD" />
+                        </StackPanel>
+
+                        <StackPanel Margin="0,0,0,5" Orientation="Horizontal">
+                            <TextBlock
+                                Margin="5,0,33,0"
+                                VerticalAlignment="Center"
+                                FontWeight="Black"
+                                Text="MetaScore:" />
+
+                            <TextBox
+                                x:Name="editGameMetaScore"
+                                Width="27.5"
+                                VerticalAlignment="Center"
+                                BorderThickness="1"
+                                TextDecorations="None"
+                                TextWrapping="Wrap" />
+
+                            <TextBlock
+                                Margin="5,0,33,0"
+                                VerticalAlignment="Center"
+                                FontStyle="Oblique"
+                                Text="0-100" />
+                        </StackPanel>
+
+                        <StackPanel Margin="0,0,0,5" Orientation="Horizontal">
+                            <TextBlock
+                                Margin="5,0,28,0"
+                                FontWeight="Black"
+                                Text="Description:" />
+
+                            <TextBox
+                                x:Name="editGameDescription"
+                                Width="400"
+                                Height="150"
+                                VerticalAlignment="Center"
+                                BorderThickness="1"
+                                TextDecorations="None"
+                                TextWrapping="Wrap" />
+                        </StackPanel>
+
+                        <StackPanel Margin="0,0,0,5" Orientation="Horizontal">
+                            <TextBlock
+                                Margin="5,0,5,0"
+                                VerticalAlignment="Center"
+                                FontWeight="Black"
+                                Text="Cover Path URL:" />
+
+                            <TextBox
+                                x:Name="editGameCoverPath"
+                                Width="400"
+                                Height="50"
+                                VerticalAlignment="Center"
+                                BorderThickness="1"
+                                TextDecorations="None"
+                                TextWrapping="Wrap" />
+                        </StackPanel>
+
+                        <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                            <Button
+                                Width="50"
+                                Margin="5"
+                                Background="White"
+                                Click="saveEditGame_Click"
+                                Content="Save" />
+                            <Button
+                                Width="50"
+                                Margin="5"
+                                Background="White"
+                                Click="cancelEditGameButton_Click"
                                 Content="Cancel" />
                         </StackPanel>
                     </StackPanel>

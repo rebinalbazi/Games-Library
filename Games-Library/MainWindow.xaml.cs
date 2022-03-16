@@ -58,6 +58,15 @@ namespace Games_Library
             return sFilePath;
         }
 
+        /// Methode die, die Liste lädt
+        private bool LoadLibrary(string libraryFileName)
+        {
+            string path = GetPath();
+
+            ListViewGame.ItemsSource = ReadCSV(@"" + path + libraryFileName + ".csv");
+            return true;
+        }
+
         /// Sortier-Methode beim rauf klicken der jeweiligen Spiele-Eigenschaft
         private void SortColumnHeader_Click(object sender, RoutedEventArgs e)
         {
@@ -102,6 +111,7 @@ namespace Games_Library
                 scrollViewerDescription.Visibility = Visibility.Visible;
                 deleteButton.Visibility = Visibility.Visible;
                 addEditUserScoreButton.Visibility = Visibility.Visible;
+                editGameButton.Visibility = Visibility.Visible;
 
                 /// Hier wird das Cover des Spiels als Bitmap eingelesen und geladen
                 var bitmapImage = new BitmapImage();
@@ -112,7 +122,7 @@ namespace Games_Library
                 if (!result)
                     SelectedGame.Cover_Path = "";
 
-                /// Wenn das Spiel kein Cover enthält, dann wird ein Bild mit "No Cover Available" angezeigt
+                /// Wenn das Spiel kein Cover enthält oder einen ungültigen URL hat, dann wird ein Bild mit "No Cover Available" angezeigt
                 if (SelectedGame.Cover_Path.Length != 0 && SelectedGame.Cover_Path != null)
                     bitmapImage.UriSource = new Uri(SelectedGame.Cover_Path);
                 else
@@ -238,15 +248,6 @@ namespace Games_Library
             createLibraryInputTextBox.Text = String.Empty;
         }
 
-        /// Lädt einer der gewählten Listen
-        private bool LoadLibrary(string libraryFileName)
-        {
-            string path = GetPath();
-
-            ListViewGame.ItemsSource = ReadCSV(@"" + path + libraryFileName + ".csv");
-            return true;
-        }
-
         /// Erstellt eine neue .csv-Datei
         private void CreateCSVFile(string fileName)
         {
@@ -279,10 +280,11 @@ namespace Games_Library
 
             foreach (string file in filePaths)
             {
+                /// Alle sich befindenen Listen werden ausgelesen und der ComboBox hinzugefügt
                 librariesSelection.Items.Add(file.Substring(file.LastIndexOf("database") + 9));
             }
         }
-        
+
         /// Lädt alle verfügbaren Genres dynamisch aus der derzeit ausgewählten Liste
         private void CreateComBoxGenreItems()
         {
@@ -312,7 +314,7 @@ namespace Games_Library
                 /// Genre wird aus dem Spiel rausgesucht
                 string genreCel = (cel.Substring(cel.IndexOf(";") + 1).Split(';')[0].Trim());
 
-                /// Genre wird der ComboBox hinzugefügt
+                /// Genre wird der ComboBox hinzugefügt, mit Überprüfung damit keine doppellten Genre's vorkommen
                 if (!genreFilter.Items.Contains(genreCel))
                     genreFilter.Items.Add(genreCel);
             }
@@ -327,9 +329,13 @@ namespace Games_Library
             {
                 string libraryFile = librariesSelection.SelectedItem.ToString();
                 string libraryFileName = libraryFile.Remove(libraryFile.Length - 4, 4);
+                /// Lädt die ausgewählte Liste
                 LoadLibrary(libraryFileName);
+
+                /// Erstellt die Genre's der ausgewählten Liste
                 CreateComBoxGenreItems();
 
+                /// Setzt alle Filter zurück
                 CollectionView view = (CollectionView)CollectionViewSource.GetDefaultView(ListViewGame.ItemsSource);
                 view.Filter = ResetFilter;
             }
@@ -402,10 +408,6 @@ namespace Games_Library
                 deleteButton.Visibility = Visibility.Hidden;
                 addEditUserScoreButton.Visibility = Visibility.Hidden;
             }
-            else
-            {
-                /// MessageBox wird wieder geschlossen 
-            }
         }
 
         /// Aktivier -und Abbruchbutton fürs ändern des User Scores
@@ -441,6 +443,7 @@ namespace Games_Library
 
                 Game SelectedGame = (Game)ListViewGame.SelectedItem;
 
+                /// Überprüfung ob ein Spiel ausgewählt worden ist
                 if (ListViewGame.SelectedItem != null)
                 {
                     SelectedGame = (Game)ListViewGame.SelectedItem;
@@ -506,6 +509,7 @@ namespace Games_Library
                     LoadLibrary(libraryFileName);
                     CreateComBoxGenreItems();
 
+                    /// Die Eingabefelder werden ausgeblendet und auch ReadOnly gestellt
                     textBoxUser_Score.IsReadOnly = true;
                     textBoxUser_Score.BorderThickness = new Thickness(0);
                     saveUserScoreButton.Visibility = Visibility.Hidden;
@@ -529,6 +533,7 @@ namespace Games_Library
         /// Aktivier -und Abbruchbutton fürs hinzufügen eines neuen Spiels
         private void addGameButton_Click(object sender, RoutedEventArgs e)
         {
+            /// InputBox für das Erstellen eines Spiels wird eingeblendet
             addGameInputBox.Visibility = Visibility.Visible;
         }
         private void cancelAddGameButton_Click(object sender, RoutedEventArgs e)
@@ -547,7 +552,7 @@ namespace Games_Library
         /// Methode für das hinzufügen eines neuen Spiels in die Liste
         private void saveAddGame_Click(object sender, RoutedEventArgs e)
         {
-            /// Überprüfung das keine Semikolons in den Input Feldern sind
+            /// Überprüfung das keine Semikolons in den Input Feldern sind, da sonst die Datenbankstruktur auseinader fällt
             if (!addGameName.Text.Contains(";") &&
                 !addGameGenre.Text.Contains(";") &&
                 !addGameReleaseDate.Text.Contains(";") &&
@@ -561,12 +566,14 @@ namespace Games_Library
                 else
                     platformString = addGameplatform.SelectedValue.ToString().Substring(38);
 
+                /// Überprüfung wenn das Datumformat falsch ist
                 DateTime dt;
                 string[] formats = { "yyyy-MM-dd" };
                 if (DateTime.TryParseExact(addGameReleaseDate.Text, formats,
                                 CultureInfo.InvariantCulture, DateTimeStyles.None, out dt) ||
                                 addGameReleaseDate.Text == "")
                 {
+                    /// Überprüfung wenn das Textfeld MetaScore keine Zahlen enthält
                     int number;
                     bool result = Int32.TryParse(addGameMetaScore.Text, out number);
                     if (result || addGameMetaScore.Text == "")
@@ -589,6 +596,7 @@ namespace Games_Library
 
                             int countRecords = userRange.Rows.Count;
 
+                            /// Neues Spiel wird zusammengestellt
                             string newGame = addGameName.Text + ";" +
                                 addGameGenre.Text + ";" +
                                 platformString + ";" +
@@ -596,7 +604,6 @@ namespace Games_Library
                                 addGameDescription.Text + ";" +
                                 addGameMetaScore.Text + ";" + ";" +
                                 addGameCoverPath.Text;
-
 
                             /// Neues Spiel wird der einer Excel-Zelle hinzugefügt
                             x.Cells[countRecords + 1, 1] = newGame;
@@ -642,10 +649,197 @@ namespace Games_Library
                 {
                     /// Wenn ein falsches Datumformat eingegeben word ist, wird ein Fehler ausgeworfen und das Textfeld geleert
                     MessageBox.Show("Please enter the correct date format", "Error", MessageBoxButton.OK);
+                    addGameReleaseDate.Text = "";
                 }
             }
             else
             {
+                /// Wenn in einer der Textfelder sich ein Semikolon befindet, wird ein Fehler ausgeworfen
+                MessageBox.Show("The input fields must not contain semicolons!", "Error", MessageBoxButton.OK);
+            }
+        }
+
+        /// Aktivier -und Abbruchbutton fürs editieren eines Spiels
+        private void editGameButton_Click(object sender, RoutedEventArgs e)
+        {
+            /// InputBox für das Bearbeiten eines Spiels wird eingeblendet
+            editGameInputBox.Visibility = Visibility.Visible;
+
+            /// Eigenschaften des jeweiligen Spiels werden in den Input Feldern reingeschrieben
+            Game SelectedGame = (Game)ListViewGame.SelectedItem;
+            if (ListViewGame.SelectedItem != null)
+            {
+                editGameName.Text = SelectedGame.Name;
+                editGameGenre.Text = SelectedGame.Genre;
+                editGameplatform.Text = SelectedGame.Platform;
+                editGameReleaseDate.Text = SelectedGame.Release_Date;
+                editGameMetaScore.Text = SelectedGame.Meta_Score;
+                editGameDescription.Text = Encoding.Default.GetString(Encoding.Default.GetBytes(SelectedGame.Description));
+                editGameCoverPath.Text = SelectedGame.Cover_Path;
+            }
+            else
+            {
+                editGameName.Text = textBoxName.Text;
+                editGameGenre.Text = textBoxGenre.Text;
+                editGameplatform.Text = textBoxPlatform.Text;
+                editGameReleaseDate.Text = textRelease_Date.Text;
+                editGameMetaScore.Text = textBoxMeta_Score.Text;
+                editGameDescription.Text = Encoding.Default.GetString(Encoding.Default.GetBytes(textBlockDescription.Text));
+                editGameCoverPath.Text = img.Source.ToString();
+            }
+        }
+        private void cancelEditGameButton_Click(object sender, RoutedEventArgs e)
+        {
+            editGameInputBox.Visibility = Visibility.Hidden;
+        }
+
+        /// Methode für das bearbeiten eines  Spiels
+        private void saveEditGame_Click(object sender, RoutedEventArgs e)
+        {
+            Game SelectedGame = (Game)ListViewGame.SelectedItem;
+            if (ListViewGame.SelectedItem != null)
+            {
+                SelectedGame = (Game)ListViewGame.SelectedItem;
+            }
+            else
+            {
+                SelectedGame = new Game(" " + textBoxName.Text,
+                    textBoxGenre.Text,
+                    textBoxPlatform.Text,
+                    textRelease_Date.Text,
+                    Encoding.Default.GetString(Encoding.Default.GetBytes(textBlockDescription.Text)),
+                    textBoxMeta_Score.Text,
+                    textBoxUser_Score.Text,
+                    img.Source + " ");
+            }
+
+            /// Überprüfung das keine Semikolons in den Input Feldern sind, da sonst die Datenbankstruktur auseinader fällt
+            if (!addGameName.Text.Contains(";") &&
+                !addGameGenre.Text.Contains(";") &&
+                !addGameReleaseDate.Text.Contains(";") &&
+                !addGameDescription.Text.Contains(";") &&
+                !addGameMetaScore.Text.Contains(";") &&
+                !addGameCoverPath.Text.Contains(";"))
+            {
+                string platformString;
+                if (addGameplatform.SelectedValue == null || addGameplatform.SelectedValue.ToString().Length <= 36)
+                    platformString = "";
+                else
+                    platformString = addGameplatform.SelectedValue.ToString().Substring(38);
+
+                /// Überprüfung wenn das Datumformat falsch ist
+                DateTime dt;
+                string[] formats = { "yyyy-MM-dd" };
+                if (DateTime.TryParseExact(addGameReleaseDate.Text, formats,
+                                CultureInfo.InvariantCulture, DateTimeStyles.None, out dt) ||
+                                addGameReleaseDate.Text == "")
+                {
+                    /// Überprüfung wenn das Textfeld MetaScore keine Zahlen enthält
+                    int number;
+                    bool result = Int32.TryParse(addGameMetaScore.Text, out number);
+                    if (result || addGameMetaScore.Text == "")
+                    {
+                        string path = GetPath();
+                        string libraryFile = librariesSelection.SelectedItem.ToString();
+                        string libraryFileName = libraryFile.Remove(libraryFile.Length - 4, 4);
+
+                        /// Überprüfung wenn nichts im MetaScore Textfeld steht oder für nicht mehr als 100 Eingabe
+                        if (addGameMetaScore.Text == "" || Convert.ToInt32(addGameMetaScore.Text) < 100)
+                        {
+                            /// Excel-Instanz wird erstellt:
+                            Excel.Application excel = new Excel.Application();
+                            /// Excel-Datei öffnen
+                            Excel.Workbook sheet = excel.Workbooks.Open(@"" + path + libraryFile);
+                            /// Arbeitsblatt wird ausgewählt
+                            Excel.Worksheet x = excel.ActiveSheet as Excel.Worksheet;
+                            /// Range wird erstellt
+                            Excel.Range userRange = x.UsedRange;
+
+                            /// Range iterieren
+                            for (int i = 1; i < userRange.Rows.Count + 1; i++)
+                            {
+                                /// Einzelne Zelle wird eingelesen
+                                string cel = ((Excel.Range)x.Cells[i, 1]).Value2.ToString();
+
+                                /// Überprüft die Übereinstimmung der Daten des Spiels
+                                if (cel.Contains(SelectedGame.Name + ";" + SelectedGame.Genre + ";" + SelectedGame.Platform + ";"))
+                                {
+                                    /// Aktualisiert das Spiel mit dem neuen User Score
+                                    x.Cells[i, 1] = editGameName.Text + ";" +
+                                        editGameGenre.Text + ";" +
+                                        editGameplatform.Text + ";" +
+                                        editGameReleaseDate.Text + ";" +
+                                        editGameDescription.Text + ";" +
+                                        editGameMetaScore.Text + ";" +
+                                        SelectedGame.User_Score + ";" +
+                                        editGameCoverPath.Text;
+
+                                    /// Arbeitsblatt wird gespeichert
+                                    sheet.Save();
+
+                                    MessageBox.Show("Game has been successfully updated!", "Success", MessageBoxButton.OK);
+                                    break;
+                                }
+                            }
+
+                            /// Arbeitsblatt wird geschlossen
+                            sheet.Close();
+
+                            /// Spieleliste wird aktualisiert
+                            LoadLibrary(libraryFileName);
+                            CreateComBoxGenreItems();
+
+                            /// Alle Input Felder werden wieder zurückgesetzt und die InputBox ausgeblendet
+                            editGameInputBox.Visibility = Visibility.Hidden;
+
+                            /// Die Änderung wird direkt nach Speicherung links im Infobereich aktualisiert
+                            textBoxName.Text = editGameName.Text;
+                            textBoxGenre.Text = editGameGenre.Text;
+                            textBoxPlatform.Text = editGameplatform.Text;
+                            textRelease_Date.Text = editGameReleaseDate.Text;
+                            textBoxMeta_Score.Text = editGameMetaScore.Text;
+                            textBlockDescription.Text = Encoding.Default.GetString(Encoding.Default.GetBytes(editGameDescription.Text));
+
+                            var bitmapImage = new BitmapImage();
+                            bitmapImage.BeginInit();
+
+                            Uri uriResult;
+                            bool result_ = Uri.TryCreate(editGameCoverPath.Text, UriKind.Absolute, out uriResult);
+                            if (!result_)
+                                editGameCoverPath.Text = "";
+
+                            if (editGameCoverPath.Text.Length != 0 && editGameCoverPath.Text != null)
+                                bitmapImage.UriSource = new Uri(editGameCoverPath.Text);
+                            else
+                                bitmapImage.UriSource = new Uri("https://upload.wikimedia.org/wikipedia/commons/b/b9/No_Cover.jpg");
+
+                            bitmapImage.EndInit();
+                            img.Source = bitmapImage;
+                        }
+                        else
+                        {
+                            /// Wenn eine Zahl über 100 eingegeben wird, wird eine Fehler ausgeworfen und das Textfeld geleert
+                            MessageBox.Show("Enter less 100 number", "Error", MessageBoxButton.OK);
+                            addGameMetaScore.Text = "";
+                        }
+                    }
+                    else
+                    {
+                        /// Wenn keine Zahl eingegeben wird, wird eine Fehler ausgeworfen und das Textfeld geleert
+                        MessageBox.Show("Please only enter numbers", "Error", MessageBoxButton.OK);
+                        addGameMetaScore.Text = "";
+                    }
+                }
+                else
+                {
+                    /// Wenn ein falsches Datumformat eingegeben word ist, wird ein Fehler ausgeworfen und das Textfeld geleert
+                    MessageBox.Show("Please enter the correct date format", "Error", MessageBoxButton.OK);
+                    addGameReleaseDate.Text = "";
+                }
+            }
+            else
+            {
+                /// Wenn in einer der Textfelder sich ein Semikolon befindet, wird ein Fehler ausgeworfen
                 MessageBox.Show("The input fields must not contain semicolons!", "Error", MessageBoxButton.OK);
             }
         }
