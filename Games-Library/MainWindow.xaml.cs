@@ -268,9 +268,10 @@ namespace Games_Library
         {
             string path = GetPath();
             string[] filePaths = Directory.GetFiles(@"" + path, "*.csv");
+            
             foreach (string file in filePaths)
             {
-                librariesSelection.Items.Add(file.Substring(65));
+                librariesSelection.Items.Add(file.Substring(file.LastIndexOf("database") + 9));
             }
         }
 
