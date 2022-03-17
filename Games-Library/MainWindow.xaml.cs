@@ -11,6 +11,7 @@ using System.Windows.Documents;
 using System.Windows.Media.Imaging;
 using System.Globalization;
 using Excel = Microsoft.Office.Interop.Excel;
+using Microsoft.Win32;
 
 namespace Games_Library
 {
@@ -407,6 +408,7 @@ namespace Games_Library
                 scrollViewerDescription.Visibility = Visibility.Hidden;
                 deleteButton.Visibility = Visibility.Hidden;
                 addEditUserScoreButton.Visibility = Visibility.Hidden;
+                editGameButton.Visibility = Visibility.Hidden;
             }
         }
 
@@ -841,6 +843,77 @@ namespace Games_Library
             {
                 /// Wenn in einer der Textfelder sich ein Semikolon befindet, wird ein Fehler ausgeworfen
                 MessageBox.Show("The input fields must not contain semicolons!", "Error", MessageBoxButton.OK);
+            }
+        }
+
+        /// Methode zum Importieren von Listen
+        private void importLibraryButton_Click(object sender, RoutedEventArgs e)
+        {
+            string path = GetPath();
+            var dialog = new OpenFileDialog();
+            dialog.Filter = "CSV-Datei|*.csv|Alle Dateien|*.*";
+            dialog.DefaultExt = ".csv";
+            dialog.FilterIndex = 0;
+
+            if (dialog.ShowDialog(this) == true)
+            {
+                /// Falls sich schon eine Datei mit selben Namen im Verzeichnis befindet wird ein Fehler ausgegeben
+                try
+                {
+                    /// Datei wird in die Datenbank gespeichert
+                    File.Copy(dialog.FileName, path + Path.GetFileName(dialog.FileName));
+                    string fileName = (dialog.SafeFileName).Remove((dialog.SafeFileName).Length - 4);
+
+                    /// Falls die Datenbankstruktur nicht richtig ist, wird aufgefordert eine passende Liste mit richtigen Datenbankstruktur zu öffnen
+                    try
+                    {
+                        /// Lädt die importiere Liste
+                        LoadLibrary(fileName);
+                        librariesSelection.Items.Add(fileName + ".csv");
+                        librariesSelection.SelectedItem = fileName + ".csv";
+                        CreateComBoxGenreItems();
+                        CollectionView view = (CollectionView)CollectionViewSource.GetDefaultView(ListViewGame.ItemsSource);
+                        view.Filter = ResetFilter;
+
+                        MessageBox.Show("Import was successful!", "Success", MessageBoxButton.OK);
+                    }
+                    catch
+                    {
+                        /// Nicht passende Liste wird wieder gelöscht
+                        File.Delete(@"" + path + dialog.SafeFileName);
+                        MessageBox.Show("Please select a library with a suitable database structure.", "Error", MessageBoxButton.OK);
+                    }
+                }
+                catch
+                {
+                    MessageBox.Show("A file with that name already exists. Please select another file or change the name.", "Error", MessageBoxButton.OK);
+                }
+            }
+        }
+
+        /// Methode zum exportieren von Listen
+        private void exportLibraryButton_Click(object sender, RoutedEventArgs e)
+        {
+            string path = GetPath();
+            string libraryFile = librariesSelection.SelectedItem.ToString();
+
+            var dialog = new SaveFileDialog();
+            dialog.Filter = "CSV-Datei|*.csv|Alle Dateien|*.*";
+            dialog.InitialDirectory = @"C:\";
+            dialog.RestoreDirectory = true;
+            dialog.DefaultExt = ".csv";
+            dialog.FileName = libraryFile;
+            dialog.ShowDialog();
+
+            try
+            {
+                /// Speichert die derzeit ausgewählte Liste in den gewünschten Pfad
+                File.Copy(path + Path.GetFileName(libraryFile), dialog.FileName);
+                MessageBox.Show("Export was successful!", "Success", MessageBoxButton.OK);
+            }
+            catch
+            {
+                MessageBox.Show("Error! Please try again with another name.", "Error", MessageBoxButton.OK);
             }
         }
     }

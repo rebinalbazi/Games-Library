@@ -231,6 +231,7 @@
                     x:Name="importLibraryButton"
                     Width="100"
                     BorderBrush="Black"
+                    Click="importLibraryButton_Click"
                     Content="Import Library"
                     FontWeight="Black" />
 
@@ -239,6 +240,7 @@
                     Width="100"
                     Margin="5,0,0,0"
                     BorderBrush="Black"
+                    Click="exportLibraryButton_Click"
                     Content="Export Library"
                     FontWeight="Black" />
 
@@ -393,7 +395,7 @@
                         </GridViewColumn>
                         <GridViewColumn Width="100" DisplayMemberBinding="{Binding Path=Release_Date}">
                             <GridViewColumn.Header>
-                                <GridViewColumnHeader Click="SortColumnHeader_Click" Tag="Release_Date">Release_Date</GridViewColumnHeader>
+                                <GridViewColumnHeader Click="SortColumnHeader_Click" Tag="Release_Date">Release Date</GridViewColumnHeader>
                             </GridViewColumn.Header>
                         </GridViewColumn>
                         <GridViewColumn Width="90" DisplayMemberBinding="{Binding Path=Meta_Score}">
@@ -552,7 +554,7 @@
                                 Margin="5,0,23,0"
                                 VerticalAlignment="Center"
                                 FontWeight="Black"
-                                Text="ReleaseDate:" />
+                                Text="Release Date:" />
 
                             <TextBox
                                 x:Name="addGameReleaseDate"
@@ -660,7 +662,7 @@
                         <TextBlock
                             Margin="5"
                             FontWeight="Bold"
-                            Text="Add Game" />
+                            Text="Edit Game" />
                         <Separator Margin="5" />
 
                         <StackPanel Margin="0,0,0,5" Orientation="Horizontal">
@@ -734,7 +736,7 @@
                                 Margin="5,0,23,0"
                                 VerticalAlignment="Center"
                                 FontWeight="Black"
-                                Text="ReleaseDate:" />
+                                Text="Release Date:" />
 
                             <TextBox
                                 x:Name="editGameReleaseDate"
