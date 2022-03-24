@@ -24,9 +24,6 @@ namespace Games_Library
         {
             InitializeComponent();
 
-            /// Lädt zum Start des Programmes die 00_All _Games.csv
-            LoadLibrary("00_All _Games");
-
             /// Lädt zum Start alle vorhandenen Listen in die Combobox Items
             CreateComboBoxListItems();
 
@@ -35,18 +32,25 @@ namespace Games_Library
         }
         public IEnumerable<Game> ReadCSV(string fileName)
         {
-            /// Für die Auflistung wird die Variable lines als string array deklariert und kann nur .csv dateien einlesen
-            string[] lines = File.ReadAllLines(Path.ChangeExtension(fileName, ".csv"));
-
-            /// lines.Select erlaubt, jede Zeile als Spiel zu wiedergeben.
-            /// Diese gibt dann ein IEnumerable<Game> zurück.
-            return lines.Select(line =>
+            try
             {
-                /// Nach jedem Semikolin werden die Daten in der .csv-Datei getrennt
-                string[] data = line.Split(';');
-                /// Das Spiel wird dann mit einzelnen Daten in der richtigen Reihenfolge zurückgegeben.
-                return new Game(data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7]);
-            });
+                /// Für die Auflistung wird die Variable lines als string array deklariert und kann nur .csv dateien einlesen
+                string[] lines = File.ReadAllLines(Path.ChangeExtension(fileName, ".csv"));
+
+                /// lines.Select erlaubt, jede Zeile als Spiel zu wiedergeben.
+                /// Diese gibt dann ein IEnumerable<Game> zurück.
+                return lines.Select(line =>
+                {
+                    /// Nach jedem Semikolin werden die Daten in der .csv-Datei getrennt
+                    string[] data = line.Split(';');
+                    /// Das Spiel wird dann mit einzelnen Daten in der richtigen Reihenfolge zurückgegeben.
+                    return new Game(data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7]);
+                });
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         /// Holt sich den Pfad mit dem database Ordner, wo sich alle Listen drinnen befinden
@@ -60,12 +64,15 @@ namespace Games_Library
         }
 
         /// Methode die, die Liste lädt
-        private bool LoadLibrary(string libraryFileName)
+        public bool LoadLibrary(string libraryFileName)
         {
             string path = GetPath();
 
             ListViewGame.ItemsSource = ReadCSV(@"" + path + libraryFileName + ".csv");
-            return true;
+            if (ListViewGame.ItemsSource != null)
+                return true;
+            else
+                return false;
         }
 
         /// Sortier-Methode beim rauf klicken der jeweiligen Spiele-Eigenschaft
@@ -250,10 +257,11 @@ namespace Games_Library
         }
 
         /// Erstellt eine neue .csv-Datei
-        private void CreateCSVFile(string fileName)
+        public bool CreateCSVFile(string fileName)
         {
             string path = GetPath();
-            try
+
+            if (!File.Exists(@"" + path + fileName + ".csv"))
             {
                 /// .csv-Datei wird mit dem gewünschten Namen erstellt
                 string csvpath = @"" + path + fileName + ".csv";
@@ -266,10 +274,12 @@ namespace Games_Library
 
                 /// Neu erstellte Liste wird der ComboBox hinzugefügt
                 librariesSelection.Items.Add(fileName + ".csv");
+                return true;
             }
-            catch
+            else
             {
-                MessageBox.Show("Error! Please try again.", "Error", MessageBoxButton.OK);
+                MessageBox.Show("A file with that name already exists. Please change the name.", "Error", MessageBoxButton.OK);
+                return false;
             }
         }
 
@@ -309,15 +319,23 @@ namespace Games_Library
             /// Range iterieren
             for (int i = 1; i < userRange.Rows.Count + 1; i++)
             {
-                /// Einzelne Zelle wird eingelesen
-                string cel = ((Excel.Range)x.Cells[i, 1]).Value2.ToString();
+                try
+                {
+                    /// Einzelne Zelle wird eingelesen
+                    string cel = ((Excel.Range)x.Cells[i, 1]).Value2.ToString();
 
-                /// Genre wird aus dem Spiel rausgesucht
-                string genreCel = (cel.Substring(cel.IndexOf(";") + 1).Split(';')[0].Trim());
+                    /// Genre wird aus dem Spiel rausgesucht
+                    string genreCel = (cel.Substring(cel.IndexOf(";") + 1).Split(';')[0].Trim());
 
-                /// Genre wird der ComboBox hinzugefügt, mit Überprüfung damit keine doppellten Genre's vorkommen
-                if (!genreFilter.Items.Contains(genreCel))
-                    genreFilter.Items.Add(genreCel);
+                    /// Genre wird der ComboBox hinzugefügt, mit Überprüfung damit keine doppellten Genre's vorkommen
+                    if (!genreFilter.Items.Contains(genreCel))
+                        genreFilter.Items.Add(genreCel);
+                }
+                catch
+                {
+                    break;
+                }
+
             }
             /// Arbeitsblatt wird geschlossen
             sheet.Close();
@@ -338,7 +356,8 @@ namespace Games_Library
 
                 /// Setzt alle Filter zurück
                 CollectionView view = (CollectionView)CollectionViewSource.GetDefaultView(ListViewGame.ItemsSource);
-                view.Filter = ResetFilter;
+                if (view != null)
+                    view.Filter = ResetFilter;
             }
         }
 
@@ -864,7 +883,6 @@ namespace Games_Library
                     File.Copy(dialog.FileName, path + Path.GetFileName(dialog.FileName));
                     string fileName = (dialog.SafeFileName).Remove((dialog.SafeFileName).Length - 4);
 
-                    /// Falls die Datenbankstruktur nicht richtig ist, wird aufgefordert eine passende Liste mit richtigen Datenbankstruktur zu öffnen
                     try
                     {
                         /// Lädt die importiere Liste
@@ -881,6 +899,8 @@ namespace Games_Library
                     {
                         /// Nicht passende Liste wird wieder gelöscht
                         File.Delete(@"" + path + dialog.SafeFileName);
+
+                        /// Falls die Datenbankstruktur nicht richtig ist, wird aufgefordert eine passende Liste mit richtigen Datenbankstruktur zu öffnen
                         MessageBox.Show("Please select a library with a suitable database structure.", "Error", MessageBoxButton.OK);
                     }
                 }
@@ -903,17 +923,19 @@ namespace Games_Library
             dialog.RestoreDirectory = true;
             dialog.DefaultExt = ".csv";
             dialog.FileName = libraryFile;
-            dialog.ShowDialog();
 
-            try
+            if (dialog.ShowDialog(this) == true)
             {
-                /// Speichert die derzeit ausgewählte Liste in den gewünschten Pfad
-                File.Copy(path + Path.GetFileName(libraryFile), dialog.FileName);
-                MessageBox.Show("Export was successful!", "Success", MessageBoxButton.OK);
-            }
-            catch
-            {
-                MessageBox.Show("Error! Please try again with another name.", "Error", MessageBoxButton.OK);
+                try
+                {
+                    /// Speichert die derzeit ausgewählte Liste in den gewünschten Pfad
+                    File.Copy(path + Path.GetFileName(libraryFile), dialog.FileName);
+                    MessageBox.Show("Export was successful!", "Success", MessageBoxButton.OK);
+                }
+                catch
+                {
+                    MessageBox.Show("Error! Please try again with another name.", "Error", MessageBoxButton.OK);
+                }
             }
         }
     }
