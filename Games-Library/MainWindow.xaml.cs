@@ -456,7 +456,7 @@ namespace Games_Library
         {
             int number;
             bool result = Int32.TryParse(textBoxUser_Score.Text, out number);
-            if (result)
+            if (result || textBoxUser_Score.Text == "")
             {
                 string path = GetPath();
                 string libraryFile = librariesSelection.SelectedItem.ToString();
@@ -491,7 +491,7 @@ namespace Games_Library
                 Excel.Range userRange = x.UsedRange;
 
                 /// Überprüfung für nicht mehr als 100 Eingabe
-                if (Convert.ToInt32(textBoxUser_Score.Text) < 100)
+                if (textBoxUser_Score.Text == "" || Convert.ToInt32(textBoxUser_Score.Text) < 100)
                 {
                     /// UserScore wird mit dem neuen Wert zugewiesen
                     SelectedGame.User_Score = textBoxUser_Score.Text;
@@ -735,37 +735,37 @@ namespace Games_Library
             }
 
             /// Überprüfung das keine Semikolons in den Input Feldern sind, da sonst die Datenbankstruktur auseinader fällt
-            if (!addGameName.Text.Contains(";") &&
-                !addGameGenre.Text.Contains(";") &&
-                !addGameReleaseDate.Text.Contains(";") &&
-                !addGameDescription.Text.Contains(";") &&
-                !addGameMetaScore.Text.Contains(";") &&
-                !addGameCoverPath.Text.Contains(";"))
+            if (!editGameName.Text.Contains(";") &&
+                !editGameGenre.Text.Contains(";") &&
+                !editGameReleaseDate.Text.Contains(";") &&
+                !editGameDescription.Text.Contains(";") &&
+                !editGameMetaScore.Text.Contains(";") &&
+                !editGameCoverPath.Text.Contains(";"))
             {
                 string platformString;
-                if (addGameplatform.SelectedValue == null || addGameplatform.SelectedValue.ToString().Length <= 36)
+                if (editGameplatform.SelectedValue == null || editGameplatform.SelectedValue.ToString().Length <= 36)
                     platformString = "";
                 else
-                    platformString = addGameplatform.SelectedValue.ToString().Substring(38);
+                    platformString = editGameplatform.SelectedValue.ToString().Substring(38);
 
                 /// Überprüfung wenn das Datumformat falsch ist
                 DateTime dt;
                 string[] formats = { "yyyy-MM-dd" };
-                if (DateTime.TryParseExact(addGameReleaseDate.Text, formats,
+                if (DateTime.TryParseExact(editGameReleaseDate.Text, formats,
                                 CultureInfo.InvariantCulture, DateTimeStyles.None, out dt) ||
-                                addGameReleaseDate.Text == "")
+                                editGameReleaseDate.Text == "")
                 {
                     /// Überprüfung wenn das Textfeld MetaScore keine Zahlen enthält
                     int number;
-                    bool result = Int32.TryParse(addGameMetaScore.Text, out number);
-                    if (result || addGameMetaScore.Text == "")
+                    bool result = Int32.TryParse(editGameMetaScore.Text, out number);
+                    if (result || editGameMetaScore.Text == "")
                     {
                         string path = GetPath();
                         string libraryFile = librariesSelection.SelectedItem.ToString();
                         string libraryFileName = libraryFile.Remove(libraryFile.Length - 4, 4);
 
                         /// Überprüfung wenn nichts im MetaScore Textfeld steht oder für nicht mehr als 100 Eingabe
-                        if (addGameMetaScore.Text == "" || Convert.ToInt32(addGameMetaScore.Text) < 100)
+                        if (editGameMetaScore.Text == "" || Convert.ToInt32(editGameMetaScore.Text) < 100)
                         {
                             /// Excel-Instanz wird erstellt:
                             Excel.Application excel = new Excel.Application();
@@ -841,21 +841,21 @@ namespace Games_Library
                         {
                             /// Wenn eine Zahl über 100 eingegeben wird, wird eine Fehler ausgeworfen und das Textfeld geleert
                             MessageBox.Show("Enter less 100 number", "Error", MessageBoxButton.OK);
-                            addGameMetaScore.Text = "";
+                            editGameMetaScore.Text = "";
                         }
                     }
                     else
                     {
                         /// Wenn keine Zahl eingegeben wird, wird eine Fehler ausgeworfen und das Textfeld geleert
                         MessageBox.Show("Please only enter numbers", "Error", MessageBoxButton.OK);
-                        addGameMetaScore.Text = "";
+                        editGameMetaScore.Text = "";
                     }
                 }
                 else
                 {
                     /// Wenn ein falsches Datumformat eingegeben word ist, wird ein Fehler ausgeworfen und das Textfeld geleert
                     MessageBox.Show("Please enter the correct date format", "Error", MessageBoxButton.OK);
-                    addGameReleaseDate.Text = "";
+                    editGameReleaseDate.Text = "";
                 }
             }
             else
